@@ -1,0 +1,26 @@
+using Project0.Actor;
+using Project0.World;
+
+namespace Project0.Main {
+    class ManagerGame {
+        //  Player Variables
+        private Player player;
+
+        //  World Variables
+        private ManagerWorld world;
+
+        //  Constructor
+        public ManagerGame() {
+            //  Part - Setup Player
+            player = new Player(1, 1, 1);
+
+            //  Part - Setup World
+            world = new ManagerWorld();
+        }
+
+        //  MainMethod - Play Game
+        public void PlayGame() {
+
+        }
+    }
+}
