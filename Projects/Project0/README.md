@@ -3,12 +3,16 @@ A short 'n sweet example of a text-based roguelike exploration where the player 
 ## Project Features
 (u)nstarted; (i)ncomplete; (c)ompleted; (s)tretch goals
 
-(u) Map system
- - (s) Procedurally generated map
-(u) Movement system
- - (s) Rest system
-(u) Combat system
- - (s) Variable enemies
- - (s) Status effects
-(s) Inventory system
+(i) Character system
 (s) Character creation
+(s) Inventory system
+
+(i) Combat system
+(s) Variable enemies
+(s) Status effects
+
+(u) Map system
+(s) Procedurally generated map
+
+(u) Movement system
+(s) Rest system

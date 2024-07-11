@@ -3,6 +3,9 @@ using Project0.World;
 
 namespace Project0.Main {
     class ManagerGame {
+        //  ~Reference Variables
+        public Random rand;
+
         //  Player Variables
         private Player player;
 
@@ -11,6 +14,9 @@ namespace Project0.Main {
 
         //  Constructor
         public ManagerGame() {
+            //  Part - Setup ~Reference
+            rand = new Random();
+
             //  Part - Setup Player
             player = new Player(1, 1, 1);
 
@@ -20,7 +26,7 @@ namespace Project0.Main {
 
         //  MainMethod - Play Game
         public void PlayGame() {
-
+            player.Attack(rand, player);
         }
     }
 }
