@@ -4,15 +4,15 @@ A short 'n sweet example of a text-based roguelike exploration where the player 
 (u)nstarted; (i)ncomplete; (c)ompleted; (s)tretch goals
 
 (i) Character system
-(s) Character creation
-(s) Inventory system
+- (s) Character creation
+- (s) Inventory system
 
 (i) Combat system
-(s) Variable enemies
-(s) Status effects
+- (s) Variable enemies
+- (s) Status effects
 
 (u) Map system
-(s) Procedurally generated map
+- (s) Procedurally generated map
 
 (u) Movement system
-(s) Rest system
+- (s) Rest system
