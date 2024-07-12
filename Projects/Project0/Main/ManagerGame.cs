@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Project0.Actor;
 using Project0.World;
 namespace Project0.Main;
@@ -57,5 +58,12 @@ class ManagerGame {
         if (smCombat.Force_Quit == true) {
             GameActive = false;
         }
+    }
+
+    //  SubMethod of PlayGame - Rest Enounter
+    private void RestEncounter() {
+        Console.WriteLine($"+-----+-----+-----+-----+-----+");
+
+        Console.WriteLine($"+-----+-----+-----+-----+-----+");
     }
 }

@@ -31,26 +31,32 @@ class SubManagerCombat {
     //  MainMethod - Combat Loop (param Random)
     public void CombatLoop(Random pRand) {
         Console.WriteLine($"Player has encountered {enemy.Char_Article} {enemy.Char_Name}! Combat initiated!");
-        Console.ReadLine();
+        string action = Console.ReadLine();
+
+        //  Force quit option
+        if (action == "fquit") {
+            combatActive = false;
+            Force_Quit = true;
+        }
 
         while (combatActive == true) {
             DisplayCombatStatus();
 
             // Player Action
             if (player.Health_Alive == true) {
-                PlayerAction(pRand);
+                PlayerAction_Combat(pRand);
             }
 
             if (Force_Quit == false) {
                 //  Enemy Action
                 if (enemy.Health_Alive == true) {
-                    EnemyAction(pRand);
+                    EnemyAction_Combat(pRand);
                 }
 
                 //  If Enemy is dead
                 else if (enemy.Health_Alive == false) {
-                    player.RestoreHealth();
-                    combatActive = false;
+                    DisplayCombatEnding();
+                    PlayerAction_Ending();
                 }
             }
         }
@@ -73,8 +79,14 @@ class SubManagerCombat {
         Console.WriteLine($"+-----+-----+-----+-----+-----+");
     }
 
-    //  SubMethod of CombatLoop - Player Action (param Random)
-    private void PlayerAction(Random pRand) {
+    //  SubMethod of CombatLoop - Diplay Combat Ending
+    private void DisplayCombatEnding() {
+        Console.WriteLine($"You've defeated the {enemy.Char_Name}. Do you wish to press on or rest awhile?");
+        Console.WriteLine("(1) Press on  (2) Rest");
+    }
+
+    //  SubMethod of CombatLoop - Player Action Combat (param Random)
+    private void PlayerAction_Combat(Random pRand) {
         bool actionValid = false;
         int actionCount = 0;
 
@@ -113,8 +125,56 @@ class SubManagerCombat {
         }
     }
 
-    //  SubMethod of CombatLoop - Enemy Action (param Random)
-    private void EnemyAction(Random pRand) {
+    //  SubMethod of CombatLoop - Player Action Ending
+    private void PlayerAction_Ending() {
+        bool actionValid = false;
+        int actionCount = 0;
+
+        while(actionValid == false) {
+            string action = Console.ReadLine();
+            Console.WriteLine("");
+
+            switch(action) {
+                //  Part - Force Quit
+                case "fquit":
+                    actionValid = true;
+                    combatActive = false; 
+                    Force_Quit = true;
+                    break;
+
+                //  Part - Press on
+                case "1":
+                    actionValid = true;
+                    combatActive = false;
+                    break;
+
+                //  Part - Rest
+                case "2":
+                    actionValid = true;
+                    combatActive = false;
+
+                    player.RestoreHealth();
+                    break;
+
+                //  Part - Default
+                default:
+                    actionCount++;
+
+                    if (actionCount > 5) {
+                        actionCount = 0;
+
+                        Console.WriteLine("Reset Display");
+                        Console.WriteLine("");
+
+                        DisplayCombatEnding();
+                    }
+                    break;
+            }
+        }
+    }
+
+    //  SubMethod of CombatLoop - Enemy Action Combat (param Random)
+    private void EnemyAction_Combat(Random pRand) {
         enemy.Attack(pRand, player);
     }
 }

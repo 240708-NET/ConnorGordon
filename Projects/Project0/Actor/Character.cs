@@ -122,11 +122,15 @@ class Character {
                 
                 attrMod = ((finesse == true && attr_DexMod > attr_StrMod) ? attr_DexMod : attr_StrMod);
 
-                Console.WriteLine($"{Char_Name} rolls {dice}{(((attackMod + attrMod) > 0) ? "+" : "")}{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");
+                Console.Write($"{Char_Name} rolls {dice}{(((attackMod + attrMod) > 0) ? "+" : "")}{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");
 
                 //  Part - Check vs Target AC
                 if ((dice + attackMod + attrMod) >= pTarget.Def_Unarmored) {
+                    Console.WriteLine(" and hits!");
                     DealDamage(pRand, pTarget, attrMod);
+                }
+                else {
+                    Console.WriteLine(" and misses!");
                 }
                 break;
         }
@@ -174,7 +178,9 @@ class Character {
 
         //  Part - Apply Damage
         for (int i = 0; i < attackDamages.Count; i++) {
-            pTarget.TakeDamage(attackDmgVals[i], attackDamages[i].DmgType);
+            if (attackDmgVals[i] > 0) {
+                pTarget.TakeDamage(attackDmgVals[i], attackDamages[i].DmgType);
+            }
         }
 
         Console.WriteLine("");
