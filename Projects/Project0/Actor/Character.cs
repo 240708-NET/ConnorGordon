@@ -21,6 +21,10 @@ class Character {
 
     //  Attack Variables
     private Attack atk_Unarmed;
+    public Attack Atk_Unarmed => atk_Unarmed;
+
+    private List<Attack> atk_List;
+    public List<Attack> Atk_List => atk_List;
 
     //  Defense Variables
     private int def_Unarmored;
@@ -32,7 +36,7 @@ class Character {
     public bool Health_Alive => health_Curr > 0;
     public string Health_Str => $"{health_Curr}/{health_Base}";
 
-    //  Constructor (param Name, Strength, Dexterity, Constitution)
+    //  Constructor (param Name, Strength, Dexterity, Constitution, Unarmed)
     /// <summary>
     /// Basic character object
     /// </summary>
@@ -40,7 +44,7 @@ class Character {
     /// <param name="pStr">Character strength</param>
     /// <param name="pDex">Character dexterity</param>
     /// <param name="pCon">Character constitution</param>
-    public Character(string pName, int pStr, int pDex, int pCon) {
+    public Character(string pName, int pStr, int pDex, int pCon, Attack pUnarmed) {
         //  Part - Setup _Character
         char_Name = "" + pName;
         string charFirst = char_Name.Substring(0, 1);
@@ -62,7 +66,8 @@ class Character {
         attr_ConMod = (attr_Con / 2) - 5;
 
         //  Part - Setup Attack
-        atk_Unarmed = new Attack("Melee", 0, $"1/bludgeoning", "");
+        atk_Unarmed = new Attack(pUnarmed);
+        atk_List = new List<Attack>();
 
         //  Part - Setup Defense
         def_Unarmored = 10 + attr_DexMod;
@@ -89,7 +94,12 @@ class Character {
         attr_ConMod = (attr_Con / 2) - 5;
 
         //  Part - Setup Attack
-        atk_Unarmed = new Attack("Melee", 0, $"1/bludgeoning", "");
+        atk_Unarmed = new Attack(pChar.Atk_Unarmed);
+
+        atk_List = new List<Attack>();
+        foreach(Attack atk in pChar.Atk_List) {
+            atk_List.Add(new Attack(atk));
+        }
 
         //  Part - Setup Defense
         def_Unarmored = 10 + attr_DexMod;
@@ -99,6 +109,20 @@ class Character {
         health_Curr = 0 + health_Base;
     }
 
+    //  MainMethod - Add Attack (param Type, Mod, Damages, Tags)
+    /// <summary>
+    /// Add attack to the character
+    /// </summary>
+    /// /// <param name="pName">Name of the attack</param>
+    /// <param name="pAction">Action used for the attack</param>
+    /// <param name="pType">Attack type [Melee, Ranged, Spell, Saving Throw]</param>
+    /// <param name="pMod">Attack modification [Attack Mod, Saving Throw DC]</param>
+    /// <param name="pDamages">Damage information (Dice/[Mod]/Type)</param>
+    /// /// <param name="pDamages">Attack tags [Finesse]</param>
+    public void AddAttack(string pName, string pAction, string pType, int pMod, string pDamages, string pTags) {
+        atk_List.Add(new Attack(pName, pAction, pType, pMod, pDamages, pTags));
+    }
+
     //  MainMethod - Attack (param Target)
     /// <summary>
     /// Character-level method for attacking
@@ -106,11 +130,12 @@ class Character {
     /// <param name="pRand">Reference to global random</param>
     /// <param name="pTarget">Targeted Character for the attack</param>
     public int Attack(Random pRand, Character pTarget) {
-        return AttackCalc(pRand, pTarget, atk_Unarmed);
+        int rand = (atk_List.Count > 0) ? pRand.Next(0, atk_List.Count) : -1;
+        return AttackCalc(pRand, pTarget, (rand == -1) ? atk_Unarmed : atk_List[rand]);
     }
 
     private int AttackCalc(Random pRand, Character pTarget, Attack pAtk) {
-        string[] attackArr = pAtk.Attack_Type.Split("/");
+        string[] attackArr = pAtk.Attack_Str.Split("/");
         string[] attackTags = attackArr[2].Split(", ");
         int attackMod = int.Parse(attackArr[1]);
 
@@ -128,17 +153,17 @@ class Character {
                 }
                 
                 attrMod = ((finesse == true && attr_DexMod > attr_StrMod) ? attr_DexMod : attr_StrMod);
-
-                Console.Write($"{Char_Name} rolls {dice}{(((attackMod + attrMod) >= 0) ? "+" : "")}{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");
+                Console.Write($"{Char_Name} {pAtk.Attack_Action} {pAtk.Attack_Name}, ");
+                Console.Write($"rolls {dice}{(((attackMod + attrMod) >= 0) ? "+" : "")}{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");
 
                 //  Part - Check vs Target AC
                 if ((dice + attackMod + attrMod) >= pTarget.Def_Unarmored) {
-                    Console.WriteLine(" and hits!");
-                    DealDamage(pRand, pTarget, attrMod);
+                    Console.WriteLine(", and hits!");
+                    DealDamage(pRand, pTarget, pAtk, attrMod);
                     return (dice + attackMod + attrMod);
                 }
                 else {
-                    Console.WriteLine(" and misses!");
+                    Console.WriteLine(", and misses!");
                     Console.WriteLine("");
                     return (dice + attackMod + attrMod);
                 }
@@ -147,15 +172,15 @@ class Character {
         return -999;
     }
 
-    //  SubMethod of Attack - Deal Damage (param Random, Target)
+    //  SubMethod of Attack - Deal Damage (param Random, Target, Attack, Mod)
     /// <summary>
     /// Character-level method for attacking
     /// </summary>
     /// <param name="pRand">Reference to global random</param>
     /// <param name="pTarget">Targeted Character for the attack</param>
     /// <param name="pMod">Damage modifier for the attack</param>
-    private void DealDamage(Random pRand, Character pTarget, int pMod) {
-        List<AttackDamage> attackDamages = atk_Unarmed.Attack_Damages;
+    private void DealDamage(Random pRand, Character pTarget, Attack pAtk, int pMod) {
+        List<AttackDamage> attackDamages = pAtk.Attack_Damages;
         List<string> attackDmgStrs = new List<string>();
         List<int> attackDmgVals = new List<int>();
 

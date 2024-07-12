@@ -44,6 +44,13 @@ class AttackDamage {
         dmgType = "" + pType;
     }
 
+    // Copy Constructor (param Damage)
+    public AttackDamage(AttackDamage pDmg) {
+        dmgDice = "" + pDmg.DmgDice;
+        dmgMod = 0 + pDmg.DmgMod;
+        dmgType = "" + pDmg.DmgType;
+    }
+
     //  MainMethod - To String
     public override string ToString() {
         return dmgDice + "+" + ((dmgMod != 0) ? (" + " + dmgMod) : "") + " " + dmgType;
