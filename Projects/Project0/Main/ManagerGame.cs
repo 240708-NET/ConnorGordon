@@ -6,9 +6,14 @@ class ManagerGame {
     //  ~Reference Variables
     public Random rand;
 
-    //  Player Variables
-    private Player player;
+    //  _Game Variables
+    public bool GameActive;
+
+    //  Enemy Variables
     private Character enemy;
+
+    //  Player Variables
+    private Character player;
 
     //  World Variables
     private ManagerWorld world;
@@ -19,8 +24,8 @@ class ManagerGame {
         rand = new Random();
 
         //  Part - Setup Player
-        player = new Player("Player", 20, 10, 10, 1);
-        enemy = new Character("Enemy", 10, 10, 10, 1);
+        player = new Character("Player", 20, 10, 10);
+        enemy = new Character("Enemy", 10, 10, 10);
 
         //  Part - Setup World
         world = new ManagerWorld();
@@ -28,9 +33,21 @@ class ManagerGame {
 
     //  MainMethod - Play Game
     public void PlayGame() {
-        player.Attack(rand, enemy);
+        GameActive = true;
 
+        while (GameActive == true) {
+            CombatEncounter();
+        }
+    }
+
+    //  SubMethod of PlayGame - Combat Encounter
+    private void CombatEncounter() {
         SubManagerCombat smCombat = new SubManagerCombat(player, enemy);
-        smCombat.CombatLoop();
+        smCombat.CombatLoop(rand);
+
+        //  Part - Force Quit
+        if (smCombat.Force_Quit == true) {
+            GameActive = false;
+        }
     }
 }

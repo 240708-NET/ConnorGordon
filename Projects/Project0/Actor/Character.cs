@@ -8,12 +8,15 @@ class Character {
     //  _Attribute Variables
     private int attr_Str;
     private int attr_StrMod;
+    public int Attr_Str => attr_Str;
 
     private int attr_Dex;
     private int attr_DexMod;
+    public int Attr_Dex => attr_Dex;
 
     private int attr_Con;
     private int attr_ConMod;
+    public int Attr_Con => attr_Con;
 
     //  Attack Variables
     private Attack atk_Unarmed;
@@ -25,10 +28,11 @@ class Character {
     //  Life Variables
     private int health_Base;
     private int health_Curr;
+    public bool Health_Alive => health_Curr > 0;
     public string Health_Str => $"{health_Curr}/{health_Base}";
 
-    //  Constructor (param Name, Strength, Dexterity, Constitution, Health)
-    public Character(string pName, int pStr, int pDex, int pCon, int pHP) {
+    //  Constructor (param Name, Strength, Dexterity, Constitution)
+    public Character(string pName, int pStr, int pDex, int pCon) {
         //  Part - Setup _Character
         char_Name = "" + pName;
 
@@ -49,8 +53,34 @@ class Character {
         def_Unarmored = 10 + attr_DexMod;
 
         //  Part - Setup Life
-        health_Base = 0 + pHP;
-        health_Curr = 0 + pHP;
+        health_Base = 10 + attr_ConMod;
+        health_Curr = 0 + health_Base;
+    }
+
+    //  Copy Constructor (param Character)
+    public Character(Character pChar) {
+        //  Part - Setup _Character
+        char_Name = "" + pChar.Char_Name;
+
+        //  Part - Setup _Attributes
+        attr_Str = 0 + pChar.Attr_Str;
+        attr_StrMod = (attr_Str / 2) - 5;
+
+        attr_Dex = 0 + pChar.Attr_Dex;
+        attr_DexMod = (attr_Dex / 2) - 5;
+
+        attr_Con = 0 + pChar.Attr_Con;
+        attr_ConMod = (attr_Con / 2) - 5;
+
+        //  Part - Setup Attack
+        atk_Unarmed = new Attack("Melee", 0, $"1/bludgeoning", "");
+
+        //  Part - Setup Defense
+        def_Unarmored = 10 + attr_DexMod;
+
+        //  Part - Setup Life
+        health_Base = 10 + attr_ConMod;
+        health_Curr = 0 + health_Base;
     }
 
     //  MainMethod - Attack (param Target)
@@ -153,5 +183,9 @@ class Character {
                 Console.WriteLine("- {Char_Name} has died");
             }
         }
+    }
+
+    public void RestoreHealth() {
+        health_Curr = 0 + health_Base;
     }
 }

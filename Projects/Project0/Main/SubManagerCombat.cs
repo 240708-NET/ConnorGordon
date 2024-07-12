@@ -2,6 +2,9 @@ using Project0.Actor;
 namespace Project0.Main;
 
 class SubManagerCombat {
+    //  _Game Variables
+    public bool Force_Quit;
+
     //  Character Variables
     private Character player;
     private string player_Name => $"+ {player.Char_Name}{new string(' ', (27 - player.Char_Name.Length))} +";
@@ -24,36 +27,30 @@ class SubManagerCombat {
         combatActive = true;
     }
 
-    //  MainMethod - Combat Loop
-    public void CombatLoop() {
-        while (combatActive == false) {
-            Console.WriteLine("Combat initiated");
-        }
-        DisplayCombatStatus();
+    //  MainMethod - Combat Loop (param Random)
+    public void CombatLoop(Random pRand) {
+        Console.WriteLine("Combat initiated");
 
-        bool actionValid = false;
-        int actionCount = 0;
-        while(actionValid == false) {
-            string action = Console.ReadLine();
-            actionCount++;
-            Console.WriteLine("");
+        while (combatActive == true) {
+            DisplayCombatStatus();
 
-            switch(action) {
-                //  Part - Attack
-                case "1":
-                    actionValid = true;
-                    break;
+            // Player Action
+            if (player.Health_Alive == true) {
+                PlayerAction(pRand);
             }
 
-            if (actionCount > 5) {
-                actionCount = 0;
+            //  Enemy Action
+            if (enemy.Health_Alive == true) {
+                EnemyAction(pRand);
+            }
 
-                Console.WriteLine("Reset Display");
-                Console.WriteLine("");
-
-                DisplayCombatStatus();
+            //  If Enemy is dead
+            else {
+                player.RestoreHealth();
             }
         }
+
+
     }
 
     //  SubMethod of CombatLoop - Display Combat Status
@@ -67,8 +64,58 @@ class SubManagerCombat {
         Console.WriteLine(player_Health);
         Console.WriteLine($"+                             +");
         Console.WriteLine($"+-----+-----+-----+-----+-----+");
+        DisplayAttackOptions();
+    }
+
+    //  SubMethod of CombatLoop - Display Attack Options
+    private void DisplayAttackOptions() {
         Console.WriteLine($"+  (1) Attack   (-) Defend    +");
         Console.WriteLine($"+  (-) Item     (-) Retreat   +");
         Console.WriteLine($"+-----+-----+-----+-----+-----+");
+    }
+
+    //  SubMethod of CombatLoop - Player Action (param Random)
+    private void PlayerAction(Random pRand) {
+        bool actionValid = false;
+        int actionCount = 0;
+
+        while(actionValid == false) {
+            string action = Console.ReadLine();
+            Console.WriteLine("");
+
+            switch(action) {
+                //  Part - Force Quit
+                case "fquit":
+                    actionValid = true;
+                    combatActive = false; 
+
+                    break;
+
+                //  Part - Attack
+                case "1":
+                    actionValid = true;
+                    player.Attack(pRand, enemy);
+                    break;
+
+                //  Part - Default
+                default:
+                    actionCount++;
+
+                    if (actionCount > 5) {
+                        actionCount = 0;
+
+                        Console.WriteLine("Reset Display");
+                        Console.WriteLine("");
+
+                        DisplayCombatStatus();
+                    }
+                    break;
+            }
+        }
+    }
+
+    //  SubMethod of CombatLoop - Enemy Action (param Random)
+    private void EnemyAction(Random pRand) {
+        enemy.Attack(pRand, player);
     }
 }
