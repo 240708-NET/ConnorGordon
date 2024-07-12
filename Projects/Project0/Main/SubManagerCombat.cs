@@ -41,7 +41,7 @@ class SubManagerCombat {
     //  MainMethod - Combat Loop (param Random)
     public void CombatLoop(Random pRand) {
         Console.WriteLine($"Player has encountered {enemy.Char_Article} {enemy.Char_Name}! Combat initiated!");
-        string action = Console.ReadLine();
+        string? action = Console.ReadLine();
 
         //  Force quit option
         if (action == "fquit") {
@@ -107,7 +107,7 @@ class SubManagerCombat {
         int actionCount = 0;
 
         while(actionValid == false) {
-            string action = Console.ReadLine();
+            string? action = Console.ReadLine();
             Console.WriteLine("");
 
             switch(action) {
@@ -184,7 +184,7 @@ class SubManagerCombat {
         int actionCount = 0;
 
         while(actionValid == false) {
-            string action = Console.ReadLine();
+            string? action = Console.ReadLine();
             Console.WriteLine("");
 
             switch(action) {
