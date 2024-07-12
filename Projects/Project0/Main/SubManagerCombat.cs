@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Project0.Actor;
 namespace Project0.Main;
 
@@ -29,7 +30,8 @@ class SubManagerCombat {
 
     //  MainMethod - Combat Loop (param Random)
     public void CombatLoop(Random pRand) {
-        Console.WriteLine("Combat initiated");
+        Console.WriteLine($"Player has encountered {enemy.Char_Article} {enemy.Char_Name}! Combat initiated!");
+        Console.ReadLine();
 
         while (combatActive == true) {
             DisplayCombatStatus();
@@ -48,11 +50,10 @@ class SubManagerCombat {
                 //  If Enemy is dead
                 else if (enemy.Health_Alive == false) {
                     player.RestoreHealth();
+                    combatActive = false;
                 }
             }
         }
-
-
     }
 
     //  SubMethod of CombatLoop - Display Combat Status

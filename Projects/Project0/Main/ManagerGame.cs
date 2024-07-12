@@ -11,6 +11,7 @@ class ManagerGame {
 
     //  Enemy Variables
     private Character enemy;
+    private List<Character> enemyList;
 
     //  Player Variables
     private Character player;
@@ -22,6 +23,13 @@ class ManagerGame {
     public ManagerGame() {
         //  Part - Setup ~Reference
         rand = new Random();
+
+        //  Part - Setup Enemy
+        enemyList = new List<Character>() {
+            new Character("Goblin", 8, 6, 6),
+            new Character("Orc", 12, 8, 12),
+            new Character("Spider", 6, 14, 8),
+        };
 
         //  Part - Setup Player
         player = new Character("Player", 20, 10, 10);
@@ -42,7 +50,7 @@ class ManagerGame {
 
     //  SubMethod of PlayGame - Combat Encounter
     private void CombatEncounter() {
-        SubManagerCombat smCombat = new SubManagerCombat(player, enemy);
+        SubManagerCombat smCombat = new SubManagerCombat(player, new Character(enemyList[rand.Next(0, enemyList.Count)]));
         smCombat.CombatLoop(rand);
 
         //  Part - Force Quit

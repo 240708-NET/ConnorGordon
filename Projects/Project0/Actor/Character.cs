@@ -4,6 +4,7 @@ class Character {
     //  _Character Variables
     private string char_Name;
     public string Char_Name => char_Name;
+    public string Char_Article { get; private set; }
 
     //  _Attribute Variables
     private int attr_Str;
@@ -35,6 +36,13 @@ class Character {
     public Character(string pName, int pStr, int pDex, int pCon) {
         //  Part - Setup _Character
         char_Name = "" + pName;
+        string charFirst = char_Name.Substring(0, 1);
+        if (charFirst == "a" || charFirst == "e" || charFirst == "i" || charFirst == "o" || charFirst == "u") {
+            Char_Article = "an";
+        }
+        else {
+            Char_Article = "a";
+        }
 
         //  Part - Setup _Attributes
         attr_Str = 0 + pStr;
@@ -61,6 +69,7 @@ class Character {
     public Character(Character pChar) {
         //  Part - Setup _Character
         char_Name = "" + pChar.Char_Name;
+        Char_Article = "" + pChar.Char_Article;
 
         //  Part - Setup _Attributes
         attr_Str = 0 + pChar.Attr_Str;
@@ -113,7 +122,7 @@ class Character {
                 
                 attrMod = ((finesse == true && attr_DexMod > attr_StrMod) ? attr_DexMod : attr_StrMod);
 
-                Console.WriteLine($"{Char_Name} rolls {dice}+{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");
+                Console.WriteLine($"{Char_Name} rolls {dice}{(((attackMod + attrMod) > 0) ? "+" : "")}{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");
 
                 //  Part - Check vs Target AC
                 if ((dice + attackMod + attrMod) >= pTarget.Def_Unarmored) {
@@ -138,7 +147,7 @@ class Character {
         //  Part - Get Damage Actual
         for (int i = 0; i < attackDamages.Count; i++) {
             attackDmgVals.Add(attackDamages[i].GetDamage(pRand));
-            attackDmgStrs.Add(attackDmgVals[i] + ((i == 0) ? "+" + pMod : "") + " " + attackDamages[i].DmgType);
+            attackDmgStrs.Add(attackDmgVals[i] + ((i == 0 && pMod != 0) ? ((pMod > 0) ? "+" : "") + pMod : "") + " " + attackDamages[i].DmgType);
 
             if (i == 0) {
                 attackDmgVals[0] += ((i == 0) ? pMod : 0);
@@ -178,12 +187,12 @@ class Character {
     /// <param name="pAmt">Amount of damage taken</param>
     /// <param name="pType">Type of damage taken</param>
     public void TakeDamage(int pAmt, string pType) {
-        if (health_Curr > 0 && (health_Curr - pAmt) <= 0) {
+        if (health_Curr > 0) {
             health_Curr -= pAmt;
             Console.WriteLine($"{Char_Name} takes {pAmt} {pType} damage");
 
             if (health_Curr <= 0) {
-                Console.WriteLine("- {Char_Name} has died");
+                Console.WriteLine($"- {Char_Name} has died");
             }
         }
     }
