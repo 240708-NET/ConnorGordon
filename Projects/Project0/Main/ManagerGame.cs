@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Project0.Actor;
 using Project0.World;
 namespace Project0.Main;
@@ -33,7 +32,7 @@ class ManagerGame {
         };
 
         //  Part - Setup Player
-        player = new Character("Player", 20, 10, 10);
+        player = new Character("Player", 10, 10, 30);
         enemy = new Character("Enemy", 10, 10, 10);
 
         //  Part - Setup World
@@ -55,15 +54,12 @@ class ManagerGame {
         smCombat.CombatLoop(rand);
 
         //  Part - Force Quit
-        if (smCombat.Force_Quit == true) {
+        if (smCombat.Force_Quit == true || smCombat.Player_Dead == true) {
             GameActive = false;
+
+            if (smCombat.Player_Dead == true) {
+                Console.WriteLine("You have died! Better luck next time!");
+            }
         }
-    }
-
-    //  SubMethod of PlayGame - Rest Enounter
-    private void RestEncounter() {
-        Console.WriteLine($"+-----+-----+-----+-----+-----+");
-
-        Console.WriteLine($"+-----+-----+-----+-----+-----+");
     }
 }

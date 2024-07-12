@@ -1,19 +1,25 @@
-using System.Runtime.CompilerServices;
 using Project0.Actor;
 namespace Project0.Main;
 
 class SubManagerCombat {
     //  _Game Variables
     public bool Force_Quit;
+    public bool Player_Dead;
 
     //  Character Variables
     private Character player;
     private string player_Name => $"+ {player.Char_Name}{new string(' ', (27 - player.Char_Name.Length))} +";
-    private string player_Health => $"+ {player.Health_Str}{new string(' ', (27 - player.Health_Str.Length))} +";
+    private string player_Health => $"+ HP: {player.Health_Str}{new string(' ', (23 - player.Health_Str.Length))} +";
+    private string player_AC => $"+ AC: {player.Def_Unarmored}{new string(' ', (23 - player.Def_Unarmored.ToString().Length))} +";
 
     private Character enemy;
     private string enemy_Name => $"+ {new string(' ', (27 - enemy.Char_Name.Length))}{enemy.Char_Name} +";
-    private string enemy_Health => $"+ {new string(' ', (27 - enemy.Health_Str.Length))}{enemy.Health_Str} +";
+    private string enemy_Health => $"+ {new string(' ', (23 - enemy.Health_Str.Length))}HP: {enemy.Health_Str} +";
+
+    private int enemy_ACLow;
+    private int enemy_ACHigh;
+    private string enemy_ACRange;
+    private string enemy_AC => $"+ {new string(' ', (23 - enemy_ACRange.Length))}AC: {enemy_ACRange} +";
 
     //  Combat Variables
     private bool combatActive;
@@ -23,6 +29,10 @@ class SubManagerCombat {
         //  Part - Setup Character
         player = pPlayer;
         enemy = pEnemy;
+
+        enemy_ACLow = -999;
+        enemy_ACHigh = 999;
+        enemy_ACRange = "???";
 
         //  Part - Setup Combat
         combatActive = true;
@@ -46,6 +56,10 @@ class SubManagerCombat {
             if (player.Health_Alive == true) {
                 PlayerAction_Combat(pRand);
             }
+            else {
+                combatActive = false;
+                Player_Dead = true;
+            }
 
             if (Force_Quit == false) {
                 //  Enemy Action
@@ -67,8 +81,10 @@ class SubManagerCombat {
         Console.WriteLine($"+-----+-----+-----+-----+-----+");
         Console.WriteLine(enemy_Name);
         Console.WriteLine(enemy_Health);
+        Console.WriteLine(enemy_AC);
         Console.WriteLine(player_Name);
         Console.WriteLine(player_Health);
+        Console.WriteLine(player_AC);
         Console.WriteLine($"+-----+-----+-----+-----+-----+");
         DisplayAttackOptions();
     }
@@ -105,7 +121,44 @@ class SubManagerCombat {
                 //  Part - Attack
                 case "1":
                     actionValid = true;
-                    player.Attack(pRand, enemy);
+                    int attack = player.Attack(pRand, enemy);
+
+                    if (attack != -999) {
+                        //  Attack missed
+                        if (attack < enemy.Def_Unarmored) {
+                            if (attack > enemy_ACLow) {
+                                enemy_ACLow = (attack + 1);
+                            }
+                        }
+
+                        //  Attack hit
+                        else {
+                            if (attack < enemy_ACHigh) {
+                                enemy_ACHigh = attack;
+                            }
+                        }
+
+                        //  Update AC Range
+                        //  Actual AC is known
+                        if (enemy_ACHigh == enemy_ACLow) {
+                            enemy_ACRange = "" + enemy_ACHigh;
+                        }
+
+                        //  AC range is known
+                        else if (enemy_ACHigh != 999 && enemy_ACLow != -999) {
+                            enemy_ACRange = enemy_ACLow + "-" + enemy_ACHigh;
+                        }
+
+                        //  AC low is known
+                        else if (enemy_ACLow != -999) {
+                            enemy_ACRange = ">" + enemy_ACLow;
+                        }
+
+                        //  AC high is known
+                        else if (enemy_ACHigh != 999) {
+                            enemy_ACRange = "<" + enemy_ACHigh;
+                        }
+                    }
                     break;
 
                 //  Part - Default

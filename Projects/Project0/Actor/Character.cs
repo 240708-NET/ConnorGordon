@@ -33,6 +33,13 @@ class Character {
     public string Health_Str => $"{health_Curr}/{health_Base}";
 
     //  Constructor (param Name, Strength, Dexterity, Constitution)
+    /// <summary>
+    /// Basic character object
+    /// </summary>
+    /// <param name="pName">Name of the character</param>
+    /// <param name="pStr">Character strength</param>
+    /// <param name="pDex">Character dexterity</param>
+    /// <param name="pCon">Character constitution</param>
     public Character(string pName, int pStr, int pDex, int pCon) {
         //  Part - Setup _Character
         char_Name = "" + pName;
@@ -98,11 +105,11 @@ class Character {
     /// </summary>
     /// <param name="pRand">Reference to global random</param>
     /// <param name="pTarget">Targeted Character for the attack</param>
-    public void Attack(Random pRand, Character pTarget) {
-        AttackCalc(pRand, pTarget, atk_Unarmed);
+    public int Attack(Random pRand, Character pTarget) {
+        return AttackCalc(pRand, pTarget, atk_Unarmed);
     }
 
-    private void AttackCalc(Random pRand, Character pTarget, Attack pAtk) {
+    private int AttackCalc(Random pRand, Character pTarget, Attack pAtk) {
         string[] attackArr = pAtk.Attack_Type.Split("/");
         string[] attackTags = attackArr[2].Split(", ");
         int attackMod = int.Parse(attackArr[1]);
@@ -122,18 +129,22 @@ class Character {
                 
                 attrMod = ((finesse == true && attr_DexMod > attr_StrMod) ? attr_DexMod : attr_StrMod);
 
-                Console.Write($"{Char_Name} rolls {dice}{(((attackMod + attrMod) > 0) ? "+" : "")}{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");
+                Console.Write($"{Char_Name} rolls {dice}{(((attackMod + attrMod) >= 0) ? "+" : "")}{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");
 
                 //  Part - Check vs Target AC
                 if ((dice + attackMod + attrMod) >= pTarget.Def_Unarmored) {
                     Console.WriteLine(" and hits!");
                     DealDamage(pRand, pTarget, attrMod);
+                    return (dice + attackMod + attrMod);
                 }
                 else {
                     Console.WriteLine(" and misses!");
+                    Console.WriteLine("");
+                    return (dice + attackMod + attrMod);
                 }
-                break;
         }
+
+        return -999;
     }
 
     //  SubMethod of Attack - Deal Damage (param Random, Target)
@@ -148,7 +159,7 @@ class Character {
         List<string> attackDmgStrs = new List<string>();
         List<int> attackDmgVals = new List<int>();
 
-        //  Part - Get Damage Actual
+        //  Part - Get Damage Actual (Gets the total values for the damages)
         for (int i = 0; i < attackDamages.Count; i++) {
             attackDmgVals.Add(attackDamages[i].GetDamage(pRand));
             attackDmgStrs.Add(attackDmgVals[i] + ((i == 0 && pMod != 0) ? ((pMod > 0) ? "+" : "") + pMod : "") + " " + attackDamages[i].DmgType);
@@ -158,7 +169,7 @@ class Character {
             }
         }
 
-        // Part - Get Attack String
+        // Part - Get Attack String (Gets the printable version of values for the damages)
         string damageStr = "";
         if (attackDmgStrs.Count == 1) {
             damageStr = $"{Char_Name} attacks for {attackDmgStrs[0]} damage";
@@ -176,7 +187,7 @@ class Character {
 
         Console.WriteLine(damageStr);
 
-        //  Part - Apply Damage
+        //  Part - Apply Damage (Applies damage if > 0)
         for (int i = 0; i < attackDamages.Count; i++) {
             if (attackDmgVals[i] > 0) {
                 pTarget.TakeDamage(attackDmgVals[i], attackDamages[i].DmgType);
@@ -197,12 +208,17 @@ class Character {
             health_Curr -= pAmt;
             Console.WriteLine($"{Char_Name} takes {pAmt} {pType} damage");
 
+            //  Character has died
             if (health_Curr <= 0) {
                 Console.WriteLine($"- {Char_Name} has died");
             }
         }
     }
 
+    //  MainMethod - Restore Health
+    /// <summary>
+    /// Character-level method for restoring current health to base health
+    /// </summary>
     public void RestoreHealth() {
         health_Curr = 0 + health_Base;
     }
