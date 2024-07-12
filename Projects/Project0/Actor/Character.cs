@@ -90,8 +90,11 @@ class Character {
     /// <param name="pRand">Reference to global random</param>
     /// <param name="pTarget">Targeted Character for the attack</param>
     public void Attack(Random pRand, Character pTarget) {
-        Attack attack = atk_Unarmed;
-        string[] attackArr = attack.Attack_Type.Split("/");
+        AttackCalc(pRand, pTarget, atk_Unarmed);
+    }
+
+    private void AttackCalc(Random pRand, Character pTarget, Attack pAtk) {
+        string[] attackArr = pAtk.Attack_Type.Split("/");
         string[] attackTags = attackArr[2].Split(", ");
         int attackMod = int.Parse(attackArr[1]);
 

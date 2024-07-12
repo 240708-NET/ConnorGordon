@@ -39,14 +39,16 @@ class SubManagerCombat {
                 PlayerAction(pRand);
             }
 
-            //  Enemy Action
-            if (enemy.Health_Alive == true) {
-                EnemyAction(pRand);
-            }
+            if (Force_Quit == false) {
+                //  Enemy Action
+                if (enemy.Health_Alive == true) {
+                    EnemyAction(pRand);
+                }
 
-            //  If Enemy is dead
-            else {
-                player.RestoreHealth();
+                //  If Enemy is dead
+                else if (enemy.Health_Alive == false) {
+                    player.RestoreHealth();
+                }
             }
         }
 
@@ -56,21 +58,17 @@ class SubManagerCombat {
     //  SubMethod of CombatLoop - Display Combat Status
     private void DisplayCombatStatus() {
         Console.WriteLine($"+-----+-----+-----+-----+-----+");
-        Console.WriteLine($"+                             +");
         Console.WriteLine(enemy_Name);
         Console.WriteLine(enemy_Health);
-        Console.WriteLine($"+                             +");
         Console.WriteLine(player_Name);
         Console.WriteLine(player_Health);
-        Console.WriteLine($"+                             +");
         Console.WriteLine($"+-----+-----+-----+-----+-----+");
         DisplayAttackOptions();
     }
 
     //  SubMethod of CombatLoop - Display Attack Options
     private void DisplayAttackOptions() {
-        Console.WriteLine($"+  (1) Attack   (-) Defend    +");
-        Console.WriteLine($"+  (-) Item     (-) Retreat   +");
+        Console.WriteLine($"+  (1) Attack                 +");
         Console.WriteLine($"+-----+-----+-----+-----+-----+");
     }
 
@@ -88,7 +86,7 @@ class SubManagerCombat {
                 case "fquit":
                     actionValid = true;
                     combatActive = false; 
-
+                    Force_Quit = true;
                     break;
 
                 //  Part - Attack
