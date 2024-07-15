@@ -1,5 +1,7 @@
 ﻿﻿using System;
 using System.IO;
+using AA_FileIO.Repo;
+using AA_FileIO.Models;
 
 namespace FileIO {
     class Program {
@@ -7,16 +9,36 @@ namespace FileIO {
             Console.WriteLine("Hello Again!");
             Console.WriteLine("");
 
+            //IRepository file = new FileReadWrite();
+            IRepository file = new Serialization();
             string path = @"./TestText.txt";
-            ReadAndWriteWithFile(path);
-            StreamReaderReadLine(path);
-            StreamReadToEnd(path);
+
+            //file.ReadAndWriteWithFile(path);
+            //Console.WriteLine("");
+
+            //file.StreamReaderReadLine(path);
+            //Console.WriteLine("");
+
+            //file.StreamReadToEnd(path);
+            //Console.WriteLine("");
+
+            path = @"./Ducks.txt";
+
+            List<Duck> duckList = new List<Duck>();
+
+            Duck myDuck = new Duck("red", 20);
+            //file.SaveDuck(path, myDuck);
+
+            duckList.Add(myDuck);
+            duckList.Add(new Duck("green", 50));
+            duckList.Add(new Duck("black", 120));
+
+            file.SaveAllDucks(path, duckList);
 
             //Duck myDuck = new Duck("purple", 100);
             //myDuck.Quack();
             //Console.WriteLine(myDuck.ToString());
 
-            path = @"./Ducks.txt";
             //File.WriteAllText(path, myDuck.ToString());
             //string ducks = File.ReadAllText(path);
             //Console.WriteLine(ducks);
@@ -25,70 +47,12 @@ namespace FileIO {
             //Duck mySavedDuck = new Duck(duckVals[0], int.Parse(duckVals[1]));
             //mySavedDuck.Quack();
 
-            List<Duck> duckList = ReadDucksFromFile(path);
+            //duckList = file.ReadDucksFromFile(path);
+            duckList = file.LoadAllDucks(path);
 
             foreach(Duck d in duckList) {
                 d.Quack();
             }
-        }
-
-        public static void ReadAndWriteWithFile(string pPath) {
-            string text = "some content for the file";
-
-            // Creating the file and writing text to it
-            if(File.Exists(pPath) == false) {
-                File.WriteAllText(pPath, text);
-                //File.WriteAllLines(path, string[]);
-            }
-
-            //  Reading all text from file at pPath
-            else {
-                Console.WriteLine("Reading from file with File.ReadAllText: ");
-
-                text = File.ReadAllText(pPath);
-                Console.WriteLine(text);
-                Console.WriteLine("");
-            }
-        }
-
-        public static void StreamReaderReadLine(string pPath) {
-            StreamReader sr = new StreamReader(pPath);
-            string? text = "";
-
-            Console.WriteLine("Reading from file with StreamReader (line by line): ");
-            while((text = sr.ReadLine()) != null) {
-                Console.WriteLine(text + " -- ");
-            }
-
-            Console.WriteLine();
-            sr.Close();
-        }
-
-        public static void StreamReadToEnd(string pPath) {
-            StreamReader sr = new StreamReader(pPath);
-            string text = "";
-
-            Console.WriteLine("Reading from file with StreamReader (EOF): ");
-            while ((text = sr.ReadToEnd()) != "") {
-                Console.WriteLine(text + " -- ");
-            }
-
-            Console.WriteLine();
-            sr.Close();
-        }
-
-        public static List<Duck> ReadDucksFromFile(string pPath) {
-            StreamReader sr = new StreamReader(pPath);
-            string? text = "";
-
-            List<Duck> duckList = new List<Duck>();
-            while((text = sr.ReadLine()) != null) {
-                string[] duckVals = text.Split(' ');
-                duckList.Add(new Duck(duckList.Count+1, duckVals[0], int.Parse(duckVals[1])));
-            }
-            sr.Close();
-            
-            return duckList;
         }
     }
 }
