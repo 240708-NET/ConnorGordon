@@ -1,3 +1,5 @@
+using System.IO;
+using Project1.Data;
 using Project1.Models.Actor;
 
 namespace Project1.Main {
@@ -30,9 +32,11 @@ namespace Project1.Main {
             //  Setup Player
             Player = new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0/1/bludgeoning"));
             Player.Actor_Admin.SetupName("Player", false);
-            Player.Actor_Admin.SetupAttributes(10, 10, 10, 10, 10, 10);
-            Player.Actor_Combat.SetupHealth(10, "1d10");
+            Player.Actor_Admin.SetupAttributes(30, 10, 10, 10, 10, 10);
+            Player.Actor_Combat.SetupHealth(100, "1d10");
             Player.Actor_Combat.SetDefense();
+            Player.Actor_Combat.AddAttack("longsword", "swings with their", "Melee", 0, "1d8/0/slashing");
+            Console.WriteLine(Player.Actor_Combat.Atk_Unarmed.ToString());
         }
 
         //  SubMethod of Constructor - Add Enemies

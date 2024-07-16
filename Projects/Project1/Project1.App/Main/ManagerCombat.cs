@@ -8,11 +8,23 @@ namespace Project1.Main {
 
         //  Combat Variables
         private bool combatActive;
+        private string combatUI_Solid => $"+{new string('-', 29)}+";
+        private string combatUI_Empty => $"+{new string(' ', 29)}+";
 
         //  Enemy Variables
-        private GameActor? enemy;
-        private GameActor_Admin? enemyAdmin => enemy.Actor_Admin;
-        private GameActor_Combat? enemyCombat => enemy.Actor_Combat;
+        private GameActor enemy;
+        public GameActor Enemy {
+            get { return enemy; }
+            set {
+                enemy = value;
+
+                enemy_ACLow = -999;
+                enemy_ACHigh = 999;
+                enemy_ACRange = "???";
+            }
+        }
+        private GameActor_Admin enemyAdmin => enemy.Actor_Admin;
+        private GameActor_Combat enemyCombat => enemy.Actor_Combat;
         private string enemy_Name => $"+ {new string(' ', (27 - enemyAdmin.Actor_Name.Length))}{enemyAdmin.Actor_Name} +";
         private string enemy_Health => $"+ {new string(' ', (23 - enemyCombat.ActorHealth_Str.Length))}HP: {enemyCombat.ActorHealth_Str} +";
 
@@ -40,6 +52,8 @@ namespace Project1.Main {
             RefMGame = pRef;
 
             //  Setup Enemy
+            enemy = new GameActor(RefMGame.M_Actor.GetEnemy());
+
             enemy_ACLow = -999;
             enemy_ACHigh = 999;
             enemy_ACRange = "???";
@@ -52,13 +66,9 @@ namespace Project1.Main {
         public void CombatLoop() {
             combatActive = true;
 
-            enemy = new GameActor(RefMGame.M_Actor.GetEnemy());
-            string enemyName = (enemy.Actor_Admin.Actor_NameProper == true) ? enemy.Actor_Admin.Actor_Name : enemy.Actor_Admin.Actor_Name.ToLower();
-            string enemyArticle = enemy.Actor_Admin.Actor_Article;
-
-            enemy_ACLow = -999;
-            enemy_ACHigh = 999;
-            enemy_ACRange = "???";
+            Enemy = new GameActor(RefMGame.M_Actor.GetEnemy());
+            string enemyName = (enemyAdmin.Actor_NameProper == true) ? enemyAdmin.Actor_Name : enemyAdmin.Actor_Name.ToLower();
+            string enemyArticle = enemyAdmin.Actor_Article;
 
             //  Encounter initiated
             Console.WriteLine($"Player has encountered {enemyArticle} {enemyName}! Combat initiated!");
@@ -73,104 +83,131 @@ namespace Project1.Main {
                     break;
             }
 
-            //  While Enemy is still active, loop through combat
+            //  While Enemies and Player are still active, loop through combat
             while (combatActive == true) {
                 DisplayCombat_Status();
 
-                if (playerAdmin.Actor_State == E_ActorState.Active) {
-                    PlayerAction_Combat();
+                switch(playerAdmin.Actor_State) {
+                    //  If player is still active, handle their input
+                    case E_ActorState.Active:
+                        PlayerAction_Combat();
+                        break;
+                    
+                    //  If player is dead/unconscious, end combat and exit
+                    default:
+                        combatActive = false;
+                        break;
                 }
 
-                else {
-                    combatActive = false;
-                    //Player_Dead = true;
+                //  If player hasn't exited the program and player still active, enemy action
+                if (RefMGame.Force_Quit == false && playerAdmin.Actor_State == E_ActorState.Active) {
+                    switch(enemyAdmin.Actor_State) {
+                        //  If enemy is still active, handle their action
+                        case E_ActorState.Active:
+                            EnemyAction_Combat();
+                            break;
+
+                        //  If enemy is dead/unconscious, end combat and exit
+                        default:
+                            DisplayCombat_Ending();
+                            PlayerAction_Ending();
+                            break;
+                    }
                 }
             }
         }
 
         //  SubMethod of Combat Loop - Display Combat Status
         private void DisplayCombat_Status() {
-            Console.WriteLine($"+ {new string('-', 27)} +");
+            Console.WriteLine(combatUI_Solid);
+
             Console.WriteLine(enemy_Name);
             Console.WriteLine(enemy_Health);
             Console.WriteLine(enemy_AC);
-            Console.WriteLine($"+ {new string(' ', 27)} +");
+
+            Console.WriteLine(combatUI_Empty);
+
             Console.WriteLine(player_Name);
             Console.WriteLine(player_Health);
             Console.WriteLine(player_AC);
-            Console.WriteLine($"+ {new string('-', 27)} +");
-            DisplayCombat_Attack();
+
+            Console.WriteLine(combatUI_Solid);
+            DisplayCombat_Options();
         }
 
-        //  SubMethod of CombatLoop - Display Attack Options
-        private void DisplayCombat_Attack() {
-            Console.WriteLine($"+ (1) Attack                  +");
-            Console.WriteLine($"+ {new string('-', 27)} +");
+        //  SubMethod of CombatLoop - Display Combat Options
+        private void DisplayCombat_Options() {
+            Console.WriteLine($"+  (1) Attack                 +");
+            Console.WriteLine(combatUI_Solid);
+        }
+
+        //  SubMethod of CombatLoop - Display Combat Ending
+        private void DisplayCombat_Ending() {
+            Console.WriteLine($"You've defeated the {enemyAdmin.Actor_Name}. Do you wish to press on or rest awhile?");
+            Console.WriteLine("(1) Press on  (2) Rest");
         }
 
         //  SubMethod of CombatLoop - Player Action Combat
         private void PlayerAction_Combat() {
-            Console.WriteLine("Check 1");
-            bool actionValid = false;
+            string? action = "";
             int actionCount = 0;
 
-            while(actionValid == false) {
-                string? action = Console.ReadLine();
+            int playerToHit = 0;
+
+            while(actionCount >= 0) {
+                action = Console.ReadLine();
                 Console.WriteLine("");
 
                 switch(action) {
-                    //  Part - Force Quit
+                    //  Force Quit action
                     case "fquit":
-                        actionValid = true;
-                        combatActive = false; 
+                        actionCount = -1;
+                        combatActive = false;
                         RefMGame.Force_Quit = true;
                         break;
 
-                    //  Part - Attack
+                    //  Player attack
                     case "1":
-                        Console.WriteLine("Check 2");
-                        actionValid = true;
-                        int attack = playerCombat.Attack(RefRand, enemy);
+                        actionCount = -1;
+                        playerToHit = playerCombat.Attack(RefRand, enemy);
 
-                        if (attack != -999) {
-                            //  Attack missed
-                            if (attack < enemyCombat.Def_Unarmored) {
-                                if (attack > enemy_ACLow) {
-                                    enemy_ACLow = (attack + 1);
+                        //  Update enemy AC assumption range
+                        if (playerToHit != -999) {
+                            if (playerToHit >= enemyCombat.Def_Unarmored) {
+                                //  Player hasn't hit before and has missed, increment enemy_ACLow to switch to range
+                                if (enemy_ACHigh == 999 && enemy_ACLow != -999) {
+                                    enemy_ACLow++;
                                 }
+                                enemy_ACHigh = (playerToHit < enemy_ACHigh) ? playerToHit : enemy_ACHigh;
                             }
 
-                            //  Attack hit
                             else {
-                                if (attack < enemy_ACHigh) {
-                                    enemy_ACHigh = attack;
-                                }
+                                enemy_ACLow = (playerToHit > enemy_ACLow) ? playerToHit : enemy_ACLow;
                             }
+                        }
 
-                            //  Update AC Range
-                            //  Actual AC is known
-                            if (enemy_ACHigh == enemy_ACLow) {
-                                enemy_ACRange = "" + enemy_ACHigh;
-                            }
+                        //  Actual AC is known
+                        if (enemy_ACHigh == enemy_ACLow) {
+                            enemy_ACRange = "" + enemy_ACHigh;
+                        }
 
-                            //  AC range is known
-                            else if (enemy_ACHigh != 999 && enemy_ACLow != -999) {
-                                enemy_ACRange = enemy_ACLow + "-" + enemy_ACHigh;
-                            }
+                        //  AC range is known
+                        else if (enemy_ACHigh != 999 && enemy_ACLow != -999) {
+                            enemy_ACRange = enemy_ACLow + "-" + enemy_ACHigh;
+                        }
 
-                            //  AC low is known
-                            else if (enemy_ACLow != -999) {
-                                enemy_ACRange = ">" + enemy_ACLow;
-                            }
+                        //  AC low is known
+                        else if (enemy_ACLow != -999) {
+                            enemy_ACRange = ">" + enemy_ACLow;
+                        }
 
-                            //  AC high is known
-                            else if (enemy_ACHigh != 999) {
-                                enemy_ACRange = "<" + enemy_ACHigh;
-                            }
+                        //  AC high is known
+                        else if (enemy_ACHigh != 999) {
+                            enemy_ACRange = "<" + enemy_ACHigh;
                         }
                         break;
 
-                    //  Part - Default
+                    //  Invalid input
                     default:
                         actionCount++;
 
@@ -185,6 +222,58 @@ namespace Project1.Main {
                         break;
                 }
             }
+        }
+
+        //  SubMethod of CombatLoop - Player Action Ending
+        private void PlayerAction_Ending() {
+            string? action = "";
+            int actionCount = 0;
+
+            while(actionCount >= 0) {
+                action = Console.ReadLine();
+                Console.WriteLine("");
+
+                switch(action) {
+                    //  Force Quit action
+                    case "fquit":
+                        actionCount = -1;
+                        combatActive = false;
+                        RefMGame.Force_Quit = true;
+                        break;
+
+                    //  Player presses on
+                    case "1":
+                        actionCount = -1;
+                        combatActive = false;
+                        break;
+
+                    //  Player rests
+                    case "2":
+                        actionCount = -1;
+                        combatActive = false;
+                        playerCombat.RestoreHealth();
+                        break;
+
+                    //  Invalid input
+                    default:
+                        actionCount++;
+
+                        if (actionCount > 5) {
+                            actionCount = 0;
+
+                            Console.WriteLine("Reset Display");
+                            Console.WriteLine("");
+
+                            DisplayCombat_Status();
+                        }
+                        break;
+                }
+            }
+        }
+
+        //  SubMethod of CombatLoop - Enemy Action Combat
+        private void EnemyAction_Combat() {
+            enemyCombat.Attack(RefRand, player);
         }
     }
 }

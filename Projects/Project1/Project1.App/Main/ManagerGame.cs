@@ -28,7 +28,9 @@ namespace Project1.Main {
         /// Main Game Method
         /// </summary>
         public void PlayGame() {
-            M_Combat.CombatLoop();
+            while(Force_Quit == false) {
+                M_Combat.CombatLoop();
+            }
         }
     }
 }

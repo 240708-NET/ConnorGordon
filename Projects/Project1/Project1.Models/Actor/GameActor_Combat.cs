@@ -216,10 +216,10 @@ namespace Project1.Models.Actor {
             //  Part - Apply Damage (Applies damage if > 0)
             for (int i = 0; i < attackDamages.Count; i++) {
                 if (attackDmgVals[i] > 0) {
-                    pTarget.Actor_Combat.TakeDamage(attackDmgVals[i], attackDamages[i].Dmg_Type);
+                    pTarget.Actor_Admin.Actor_State = pTarget.Actor_Combat.TakeDamage(attackDmgVals[i], attackDamages[i].Dmg_Type);
                 }
             }
-
+            
             Console.WriteLine("");
         }
 
@@ -229,16 +229,15 @@ namespace Project1.Models.Actor {
         /// </summary>
         /// <param name="pAmt">Amount of damage taken</param>
         /// <param name="pType">Type of damage taken</param>
-        public void TakeDamage(int pAmt, string pType) {
+        public E_ActorState TakeDamage(int pAmt, string pType) {
             if (Actor_HealthCurr > 0) {
                 Actor_HealthCurr -= pAmt;
-                Console.WriteLine($"{RefGActor.Actor_Admin.Actor_Name} takes {pAmt} {pType} damage");
 
-                //  Character has died
-                if (Actor_HealthCurr <= 0) {
-                    Console.WriteLine($"- {RefGActor.Actor_Admin.Actor_Name} has died");
-                }
+                Console.WriteLine($"{refAAdmin.Actor_Name} takes {pAmt} {pType} damage");
+                return (Actor_HealthCurr <= 0) ? E_ActorState.Dead : E_ActorState.Active;
             }
+
+            return E_ActorState.Dead;
         }
 
         //  MainMethod - Restore Health
