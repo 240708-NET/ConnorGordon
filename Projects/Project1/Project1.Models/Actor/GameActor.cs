@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Project1.Models.Actor {
     public enum E_ActorState {
         Null,

@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Project1.Models.Actor {
     public class GameAttack {
         // Attack Variables
@@ -5,7 +8,7 @@ namespace Project1.Models.Actor {
         public string Attack_Action { get; private set; }
         public string Attack_Type { get; private set; } // Melee, Ranged, Spell, Saving Throw
         public string Attack_Mod  { get; private set; } // Melee/Ranged/Spell Mod, Saving Throw DC
-        public string Attack_Str => Attack_Type + "/" + Attack_Mod;
+        public string Attack_Str => $"{Attack_Name}_{Attack_Action}_{Attack_Type}_{Attack_Mod}";
 
         //  Damage Variables
         public List<GameDamage> Attack_Damages { get; private set; }
@@ -32,8 +35,7 @@ namespace Project1.Models.Actor {
             //  SubPart - Split pDamages into individual damages
             string[] attackArr = pDamages.Split(", ");
             for (int i = 0; i < attackArr.Length; i++) {
-                string[] damageArr = attackArr[i].Split("/");
-                
+                string[] damageArr = attackArr[i].Split("_");                
                 Attack_Damages.Add(new GameDamage(damageArr[0], int.Parse(damageArr[1]), damageArr[2]));
             }
         }

@@ -15,6 +15,8 @@ namespace Project1.Models.Actor {
         //  Proficiency Variables
         public int Actor_Proficiency { get; private set; }
 
+        public string Actor_Str => $"{Actor_Name}_{Actor_NameProper}_{Actor_Article}_{Actor_Proficiency}";
+
         //  Constructor
         public GameActor_Admin() {
             //  Setup Active

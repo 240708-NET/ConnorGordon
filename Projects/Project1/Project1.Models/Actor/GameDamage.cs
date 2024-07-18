@@ -3,6 +3,7 @@ namespace Project1.Models.Actor {
         public string Dmg_Dice { get; private set; }
         public int Dmg_Mod { get; private set; }
         public string Dmg_Type { get; private set; }
+        public string Dmg_Str => $"{Dmg_Dice}_{Dmg_Mod}_{Dmg_Type}";
 
         // Constructor
         /// <summary>

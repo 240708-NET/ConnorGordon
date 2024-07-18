@@ -1,7 +1,10 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Project1.Models.Actor {
     public class GameActor_Combat {
         //  ~Reference Variables
-        public GameActor RefGActor { get; private set; }
+        public GameActor RefGActor;
         private GameActor_Admin refAAdmin => RefGActor.Actor_Admin;
         private Dictionary<string, int> refAAttrMod => refAAdmin.D_AttrMod;
 
@@ -17,6 +20,7 @@ namespace Project1.Models.Actor {
         public int Actor_HealthBase { get; private set; }
         public int Actor_HealthCurr { get; private set; }
         public string ActorHealth_Str => $"{Actor_HealthCurr}/{Actor_HealthBase}";
+        public string Actor_Str => $"{Actor_HealthBase}_{Actor_HealthDice}";
         
         //  Constructor
         /// <summary>
@@ -67,13 +71,22 @@ namespace Project1.Models.Actor {
         /// <summary>
         /// Add attack to the actor
         /// </summary>
-        /// /// <param name="pName">Name of the attack</param>
+        /// <param name="pName">Name of the attack</param>
         /// <param name="pAction">Action used for the attack</param>
         /// <param name="pType">Attack type [Melee, Ranged, Spell, Saving Throw]</param>
         /// <param name="pMod">Attack modification [Attack Mod, Saving Throw DC]</param>
         /// <param name="pDamages">Damage information (Dice/[Mod]/Type)</param>
         public void AddAttack(string pName, string pAction, string pType, int pMod, string pDamages) {
             Atk_List.Add(new GameAttack(pName, pAction, pType, pMod, pDamages));
+        }
+
+        //  MainMethod - Add Attack
+        /// <summary>
+        /// Add attack to the actor [Used in loading attack]
+        /// </summary>
+        /// <param name="pAttack">Attack</param>
+        public void AddAttack(GameAttack pAttack) {
+            Atk_List.Add(new GameAttack(pAttack));
         }
 
         //  MainMethod - Set Defence
@@ -134,25 +147,15 @@ namespace Project1.Models.Actor {
         }
 
         private int AttackCalc(Random pRand, GameActor pTarget, GameAttack pAtk) {
-            string[] attackArr = pAtk.Attack_Str.Split("/");
-            //string[] attackTags = attackArr[2].Split(", ");
-            int attackMod = int.Parse(attackArr[1]);
+            int attackMod = int.Parse(pAtk.Attack_Mod);
 
             //  Part - Calculate if attack lands
             int dice = pRand.Next(1, 21);
             int attrMod = 0;
-            switch(attackArr[0]) {
-                //  Melee Attack (If Finesse, can use Dex mod instead of Str mod)
+            switch(pAtk.Attack_Type) {
+                //  Melee Attack
                 case "Melee":
                     bool finesse = false;
-                    /*
-                    foreach(string str in attackTags) {
-                        if (str == "Finesse") {
-                            finesse = true;
-                        }
-                    }
-                    */
-                    
                     attrMod = ((finesse == true && refAAttrMod["DEX"] > refAAttrMod["STR"]) ? refAAttrMod["DEX"] : refAAttrMod["STR"]);
                     Console.Write($"{RefGActor.Actor_Admin.Actor_Name} {pAtk.Attack_Action} {pAtk.Attack_Name}, ");
                     Console.Write($"rolls {dice}{(((attackMod + attrMod) >= 0) ? "+" : "")}{(attackMod + attrMod)} ({(dice + attackMod + attrMod)})");

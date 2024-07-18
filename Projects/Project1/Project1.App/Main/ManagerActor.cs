@@ -27,16 +27,25 @@ namespace Project1.Main {
             //  Setup Enemy
             d_Enemies = new Dictionary<string, GameActor>();
             enemyKeys = new List<string>();
-            AddEnemies();
+
+            IData dataHandle = new DataSerial();
+            string path = "../Project1.Repo/Enemies.txt";
+
+            //AddEnemies();
+            //dataHandle.SaveAllEnemies(path, d_Enemies.Values.ToList());
+
+            d_Enemies = dataHandle.LoadAllEnemies(path);
+            enemyKeys = d_Enemies.Keys.ToList();
+
 
             //  Setup Player
-            Player = new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0/1/bludgeoning"));
+            Player = new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0_1_bludgeoning"));
             Player.Actor_Admin.SetupName("Player", false);
-            Player.Actor_Admin.SetupAttributes(30, 10, 10, 10, 10, 10);
+            Player.Actor_Admin.SetupAttributes(10, 10, 10, 10, 10, 10);
             Player.Actor_Combat.SetupHealth(100, "1d10");
             Player.Actor_Combat.SetDefense();
-            Player.Actor_Combat.AddAttack("longsword", "swings with their", "Melee", 0, "1d8/0/slashing");
-            Console.WriteLine(Player.Actor_Combat.Atk_Unarmed.ToString());
+            Player.Actor_Combat.AddAttack("longsword", "swings with their", "Melee", 0, "1d8_0_slashing");
+            //Console.WriteLine(Player.Actor_Combat.Atk_Unarmed.ToString());
         }
 
         //  SubMethod of Constructor - Add Enemies
@@ -45,21 +54,22 @@ namespace Project1.Main {
         /// </summary>
         private void AddEnemies() {
             enemyKeys.Add("Goblin");
-            d_Enemies.Add("Goblin", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0/1/bludgeoning")));
+            d_Enemies.Add("Goblin", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0_1_bludgeoning")));
             d_Enemies["Goblin"].Actor_Admin.SetupName("Goblin", false);
             d_Enemies["Goblin"].Actor_Admin.SetupAttributes(10, 14, 10, 10, 8, 8);
             d_Enemies["Goblin"].Actor_Combat.SetupHealth(7, "2d6");
             d_Enemies["Goblin"].Actor_Combat.SetDefense();
+            d_Enemies["Goblin"].Actor_Combat.AddAttack(new GameAttack("dagger", "stabs with their", "Melee", 0, "1d4_0_piercing"));
 
             enemyKeys.Add("Orc");
-            d_Enemies.Add("Orc", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0/1/bludgeoning")));
+            d_Enemies.Add("Orc", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0_1_bludgeoning")));
             d_Enemies["Orc"].Actor_Admin.SetupName("Orc", false);
             d_Enemies["Orc"].Actor_Admin.SetupAttributes(16, 12, 16, 7, 11, 10);
             d_Enemies["Orc"].Actor_Combat.SetupHealth(15, "2d8");
             d_Enemies["Orc"].Actor_Combat.SetDefense();
 
             enemyKeys.Add("Giant Spider");
-            d_Enemies.Add("Giant Spider", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0/1/bludgeoning")));
+            d_Enemies.Add("Giant Spider", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0_1_bludgeoning")));
             d_Enemies["Giant Spider"].Actor_Admin.SetupName("Giant Spider", false);
             d_Enemies["Giant Spider"].Actor_Admin.SetupAttributes(14, 16, 12, 2, 11, -3);
             d_Enemies["Giant Spider"].Actor_Combat.SetupHealth(26, "4d10");
