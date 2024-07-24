@@ -1,5 +1,3 @@
-using System.IO;
-using Project1.Data;
 using Project1.Models.Actor;
 
 namespace Project1.Main {
@@ -9,7 +7,7 @@ namespace Project1.Main {
         private Random refRand => RefMGame.Rand;
 
         //  Enemy Variables
-        private Dictionary<string, GameActor> d_Enemies;
+        public Dictionary<string, GameActor> D_Enemies { get; private set; }
         private List<string> enemyKeys;
 
         //  Player Variables
@@ -25,27 +23,24 @@ namespace Project1.Main {
             RefMGame = pRef;
 
             //  Setup Enemy
-            d_Enemies = new Dictionary<string, GameActor>();
+            D_Enemies = new Dictionary<string, GameActor>();
             enemyKeys = new List<string>();
-
-            IData dataHandle = new DataSerial();
-            string path = "../Project1.Repo/Enemies.txt";
-
-            //AddEnemies();
-            //dataHandle.SaveAllEnemies(path, d_Enemies.Values.ToList());
-
-            d_Enemies = dataHandle.LoadAllEnemies(path);
-            enemyKeys = d_Enemies.Keys.ToList();
-
+            AddEnemies();
 
             //  Setup Player
-            Player = new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0_1_bludgeoning"));
-            Player.Actor_Admin.SetupName("Player", false);
-            Player.Actor_Admin.SetupAttributes(10, 10, 10, 10, 10, 10);
-            Player.Actor_Combat.SetupHealth(100, "1d10");
-            Player.Actor_Combat.SetDefense();
-            Player.Actor_Combat.AddAttack("longsword", "swings with their", "Melee", 0, "1d8_0_slashing");
-            //Console.WriteLine(Player.Actor_Combat.Atk_Unarmed.ToString());
+            //ManagerActor_CC creation = new ManagerActor_CC(this);
+            //creation.CharacterCreation();
+
+            Player = new GameActor { 
+                Name = "Bob_True", 
+                Proficiency = 2,
+                Attributes = "10,10,10,10,10,10",
+                Class = "Fighter",
+                HealthDice = "1d10",
+                AttackUnarmed = "fists_strikes with their_Melee_0/0_1_bludgeoning",
+                AttackList = "longsword_swings with their_Melee_0/1d8_0_slashing"
+            };
+            Player = new GameActor(Player, true);
         }
 
         //  SubMethod of Constructor - Add Enemies
@@ -53,27 +48,62 @@ namespace Project1.Main {
         /// Adds enemies to the d_Enemies dictionary and the key to enemyKeys
         /// </summary>
         private void AddEnemies() {
+            Dictionary<string, GameActor> tempDict = RefMGame.DS.GetAllEnemies();
+
+            if (tempDict.Count == 0) {
+                CreateEnemies();
+                RefMGame.DS.CreateAllEnemies(D_Enemies);
+            }
+            tempDict = RefMGame.DS.GetAllEnemies();
+
+            D_Enemies = new Dictionary<string, GameActor>();
+            enemyKeys = new List<string>();
+            foreach(var enemy in tempDict) {
+                D_Enemies.Add(enemy.Key, new GameActor(enemy.Value, false));
+                enemyKeys.Add(enemy.Key);
+            }
+        }
+
+        //  SubMethod of Add Enemies - Create Enemies
+        private void CreateEnemies() {
             enemyKeys.Add("Goblin");
-            d_Enemies.Add("Goblin", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0_1_bludgeoning")));
-            d_Enemies["Goblin"].Actor_Admin.SetupName("Goblin", false);
-            d_Enemies["Goblin"].Actor_Admin.SetupAttributes(10, 14, 10, 10, 8, 8);
-            d_Enemies["Goblin"].Actor_Combat.SetupHealth(7, "2d6");
-            d_Enemies["Goblin"].Actor_Combat.SetDefense();
-            d_Enemies["Goblin"].Actor_Combat.AddAttack(new GameAttack("dagger", "stabs with their", "Melee", 0, "1d4_0_piercing"));
+            D_Enemies.Add("Goblin", new GameActor { 
+                Name = "Goblin_False", 
+                Proficiency = 2,
+                Attributes = "8,14,10,10,8,8",
+                Class = "Enemy",
+                HealthDice = "2d6",
+                AttackUnarmed = "fists_strikes with their_Melee_0/0_1_bludgeoning",
+                AttackList = "scimitar_swings with their_Melee_0/1d6_0_slashing"
+            });
 
             enemyKeys.Add("Orc");
-            d_Enemies.Add("Orc", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0_1_bludgeoning")));
-            d_Enemies["Orc"].Actor_Admin.SetupName("Orc", false);
-            d_Enemies["Orc"].Actor_Admin.SetupAttributes(16, 12, 16, 7, 11, 10);
-            d_Enemies["Orc"].Actor_Combat.SetupHealth(15, "2d8");
-            d_Enemies["Orc"].Actor_Combat.SetDefense();
+            D_Enemies.Add("Orc", new GameActor { 
+                Name = "Orc_False", 
+                Proficiency = 2,
+                Attributes = "16,12,16,7,11,10",
+                Class = "Enemy",
+                HealthDice = "2d8",
+                AttackUnarmed = "fists_strikes with their_Melee_0/0_1_bludgeoning",
+                AttackList = "greataxe_swings with their_Melee_0/1d12_0_slashing"
+            });
 
             enemyKeys.Add("Giant Spider");
-            d_Enemies.Add("Giant Spider", new GameActor(new GameAttack("fists", "punches with their", "Melee", 0, "0_1_bludgeoning")));
-            d_Enemies["Giant Spider"].Actor_Admin.SetupName("Giant Spider", false);
-            d_Enemies["Giant Spider"].Actor_Admin.SetupAttributes(14, 16, 12, 2, 11, -3);
-            d_Enemies["Giant Spider"].Actor_Combat.SetupHealth(26, "4d10");
-            d_Enemies["Giant Spider"].Actor_Combat.SetDefense();
+            D_Enemies.Add("Giant Spider", new GameActor { 
+                Name = "Giant Spider_False", 
+                Proficiency = 2,
+                Attributes = "14,16,12,2,11,4",
+                Class = "Enemy",
+                HealthDice = "4d10",
+                AttackUnarmed = "fangs_bites wit theirh_Melee_0/0_1_bludgeoning",
+                AttackList = ""
+            });
+        }
+
+        //  MainMethod - Character Creation
+        public void CharacterCreation() {
+            ManagerActor_CC creation = new ManagerActor_CC(this);
+            //creation.CharacterCreation();
         }
 
         //  MainMethod - Get Enemy
@@ -82,7 +112,7 @@ namespace Project1.Main {
         /// </summary>
         /// <returns></returns>
         public GameActor GetEnemy() {
-            return d_Enemies[enemyKeys[refRand.Next(0, enemyKeys.Count)]];
+            return D_Enemies[enemyKeys[refRand.Next(0, enemyKeys.Count)]];
         }
     }
 }

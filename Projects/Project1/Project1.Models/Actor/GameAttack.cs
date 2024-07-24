@@ -1,17 +1,25 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace Project1.Models.Actor {
     public class GameAttack {
-        // Attack Variables
+        //  _Database Variables
+        //public string Id { get; set; }
+
+        //  Attack Variables
         public string Attack_Name { get; private set; }
         public string Attack_Action { get; private set; }
         public string Attack_Type { get; private set; } // Melee, Ranged, Spell, Saving Throw
         public string Attack_Mod  { get; private set; } // Melee/Ranged/Spell Mod, Saving Throw DC
-        public string Attack_Str => $"{Attack_Name}_{Attack_Action}_{Attack_Type}_{Attack_Mod}";
 
         //  Damage Variables
-        public List<GameDamage> Attack_Damages { get; private set; }
+        public List<string> Attack_Damages { get; private set; }
+
+        public GameAttack() {
+            Attack_Name = "";
+            Attack_Action = "";
+            Attack_Type = "";
+            Attack_Mod = "";
+
+            Attack_Damages = new List<string>();
+        }
 
         //  Constructor
         /// <summary>
@@ -30,13 +38,13 @@ namespace Project1.Models.Actor {
             Attack_Mod = "" + pMod;
             
             //  Part - Setup Damage
-            Attack_Damages = new List<GameDamage>();
+            Attack_Damages = new List<string>();
 
             //  SubPart - Split pDamages into individual damages
             string[] attackArr = pDamages.Split(", ");
             for (int i = 0; i < attackArr.Length; i++) {
                 string[] damageArr = attackArr[i].Split("_");                
-                Attack_Damages.Add(new GameDamage(damageArr[0], int.Parse(damageArr[1]), damageArr[2]));
+                Attack_Damages.Add(attackArr[i]);
             }
         }
 
@@ -49,11 +57,31 @@ namespace Project1.Models.Actor {
             Attack_Mod = "" + pAtk.Attack_Mod;
             
             //  Part - Setup Damage
-            Attack_Damages = new List<GameDamage>();
+            Attack_Damages = new List<string>();
 
-            foreach(GameDamage damage in pAtk.Attack_Damages) {
-                Attack_Damages.Add(new GameDamage(damage));
+            foreach(string damage in pAtk.Attack_Damages) {
+                Attack_Damages.Add(damage);
             }
+        }
+
+        //  MainMethod - Get Damage
+        public int GetDamage(Random pRand, string pDmg) {
+            int damage = 0;
+            string[] damageArr = pDmg.Split("_");
+
+            //  Part - Add Dice Damage
+            if (damageArr[0] != "0") {
+                string[] diceArr = damageArr[0].Split("d");
+
+                for (int i = 0; i < int.Parse(diceArr[0]); i++) {
+                    damage += pRand.Next(1, int.Parse(diceArr[1])+1);
+                }
+            }
+
+            //  Part - Add Mod Damage
+            damage += int.Parse(damageArr[1]);
+
+            return damage;
         }
     }
 }

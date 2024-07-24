@@ -1,35 +1,20 @@
 namespace Project1.Models.Actor {
     public class GameDamage {
+        //  Damage Variables
         public string Dmg_Dice { get; private set; }
         public int Dmg_Mod { get; private set; }
         public string Dmg_Type { get; private set; }
-        public string Dmg_Str => $"{Dmg_Dice}_{Dmg_Mod}_{Dmg_Type}";
 
-        // Constructor
-        /// <summary>
-        /// Basic Damage Structure
-        /// </summary>
-        /// <param name="pDice">Dice of the damage</param>
-        /// <param name="pType">Type of the damage</param>
-        public GameDamage(string pDice, string pType) {
-            Dmg_Dice = "" + pDice;
-            Dmg_Mod = 0;
-            Dmg_Type = "" + pType;
-        }
+        //  Save Variables
+        public string _Save => $"{Dmg_Dice}_{Dmg_Mod}_{Dmg_Type}";
 
-        // Constructor
-        /// <summary>
-        /// Basic Damage Structure
-        /// </summary>
-        /// <param name="pMod">Modifier of the damage</param>
-        /// <param name="pType">Type of the damage</param>
-        public GameDamage(int pMod, string pType) {
+        public GameDamage() {
             Dmg_Dice = "";
-            Dmg_Mod = 0 + pMod;
-            Dmg_Type = "" + pType;
+            Dmg_Mod = 0;
+            Dmg_Type = "bludgeoning";
         }
 
-        // Constructor
+        //  Constructor
         /// <summary>
         /// Basic Damage Structure
         /// </summary>
@@ -51,7 +36,7 @@ namespace Project1.Models.Actor {
 
         //  MainMethod - To String
         public override string ToString() {
-            return Dmg_Dice + "+" + ((Dmg_Mod != 0) ? (" + " + Dmg_Mod) : "") + " " + Dmg_Type;
+            return Dmg_Dice + ((Dmg_Mod != 0) ? (((Dmg_Mod > 0) ? "+" : "") + Dmg_Mod) : "") + " " + Dmg_Type;
         }
 
         //  MainMethod - Get Damage
