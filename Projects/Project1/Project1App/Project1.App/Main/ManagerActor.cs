@@ -1,3 +1,6 @@
+using System.Net.Http;
+using System.Text.Json;
+using Newtonsoft.Json;
 using Project1.Models.Actor;
 
 namespace Project1.Main {
@@ -48,18 +51,14 @@ namespace Project1.Main {
         /// Adds enemies to the d_Enemies dictionary and the key to enemyKeys
         /// </summary>
         private void AddEnemies() {
-            Dictionary<string, GameActor> tempDict = RefMGame.DS.GetAllEnemies();
-
-            if (tempDict.Count == 0) {
-                CreateEnemies();
-                RefMGame.DS.CreateAllEnemies(D_Enemies);
-            }
-            tempDict = RefMGame.DS.GetAllEnemies();
-
+            HttpClient client = new HttpClient();
+            string str = client.GetStringAsync("http://localhost:5057/getAllEnemies").Result;
+            Dictionary<string, GameActor> tempDict = JsonConvert.DeserializeObject<Dictionary<string, GameActor>>(str);
+            
             D_Enemies = new Dictionary<string, GameActor>();
             enemyKeys = new List<string>();
             foreach(var enemy in tempDict) {
-                D_Enemies.Add(enemy.Key, new GameActor(enemy.Value, false));
+                D_Enemies.Add(enemy.Key, new GameActor(enemy.Value, true));
                 enemyKeys.Add(enemy.Key);
             }
         }

@@ -20,44 +20,39 @@ namespace Project1.Main {
             player = new GameActor();
             //player.SetupUnarmed("fists", "punches with their", "Melee", 0, "0_1_bludgeoning");
         }
-        /*
 
         //  MainMethod - Character Creation
         public GameActor CharacterCreation() {
-            player.SetupName(CC_Name(), true);
-            //player.Actor_Admin.SetupAttributes(CC_Attribute());
-            player.SetupClass(CC_Class());
+            CC_Name();
+            CC_Attribute();
+            CC_Class();
 
             return player;
         }
 
         //  SubMethod of CharacterCreation - Character Creation Name
-        private string CC_Name() {
+        private void CC_Name() {
+            bool nameValid = false;
             string name = "";
 
-            bool nameValid = false;
             while(nameValid == false) {
                 refMGame.WriteText("Please enter your name: ", 25);
                 name = Console.ReadLine() ?? "";
 
-                int actionCount = 0;
-                while(actionCount < 5) {
-                    refMGame.WriteLine($"{name} is your name? (Y/N)", 25);
-                    if ((Console.ReadLine() ?? "").ToLower() == "y") {
-                        Console.WriteLine("");
-                        nameValid = true;
-                        actionCount = 5;
-                    }
-                    
-                    actionCount++;
+                refMGame.WriteLine($"{name} is your name? (Y/N)", 25);
+                if ((Console.ReadLine() ?? "").ToLower() == "y") {
+                    Console.WriteLine("");
+                    nameValid = true;
                 }
             }
 
-            return name;
+            player.Name = name;
+            player.Proper = true;
+            player.Article = "";
         }
 
         //  SubMethod of CharacterCreation - Character Creation Attribute
-        private List<int> CC_Attribute() {
+        private void CC_Attribute() {
             refMGame.WriteText("Rolling Attributes", 25);
             refMGame.WriteLine("...", 400);
             Thread.Sleep(500);
@@ -66,78 +61,130 @@ namespace Project1.Main {
             List<int> attributePool = CCAttr_Roll();
             List<int> attributeNum = CCAttr_Assign(attributePool);
 
-            return attributeNum;
+            player.D_AttrScr = new Dictionary<string, int>() {
+                ["STR"] = attributeNum[0],
+                ["DEX"] = attributeNum[1],
+                ["CON"] = attributeNum[2],
+                ["INT"] = attributeNum[3],
+                ["WIS"] = attributeNum[4],
+                ["CHA"] = attributeNum[5],
+            };
+
+            player.D_AttrMod = new Dictionary<string, int>() {
+                ["STR"] = (attributeNum[0] / 2) - 5,
+                ["DEX"] = (attributeNum[1] / 2) - 5,
+                ["CON"] = (attributeNum[2] / 2) - 5,
+                ["INT"] = (attributeNum[3] / 2) - 5,
+                ["WIS"] = (attributeNum[4] / 2) - 5,
+                ["CHA"] = (attributeNum[5] / 2) - 5,
+            };
         }
 
         private List<int> CCAttr_Roll() {
-            int actionCount = 0;
-
-            //  Roll method
-            string rollMethod = "";
             bool methodValid = false;
+            string rollMethod = "";
+
+            //  Choosing rolling method
             while (methodValid == false) {
                 refMGame.WriteLine("Please choose a rolling method: ", 25);
                 refMGame.WriteLine("(1) 4d6 drop lowest", 25);
                 refMGame.WriteLine("(2) 3d6", 25);
                 refMGame.WriteLine("(3) 2d6+6", 25);
 
-                actionCount = 0;
-                while (actionCount < 5) {
-                    rollMethod = Console.ReadLine() ?? "";
+                rollMethod = Console.ReadLine() ?? "";
 
-                    switch(rollMethod) {
+                switch(rollMethod) {
                     case "1":
                         rollMethod = "4d6d1";
                         refMGame.WriteLine("Rolling using 4d6 drop lowest", 25);
                         Console.WriteLine("");
 
                         methodValid = true;
-                        actionCount = 5;
                         break;
+
                     case "2":
                         rollMethod = "3d6";
                         refMGame.WriteLine("Rolling using 3d6", 25);
                         Console.WriteLine("");
 
                         methodValid = true;
-                        actionCount = 5;
                         break;
+
                     case "3":
                         rollMethod = "2d6+6";
                         refMGame.WriteLine("Rolling using 2d6+6", 25);
                         Console.WriteLine("");
 
                         methodValid = true;
-                        actionCount = 5;
                         break;
-                    }
+
+                    default:
+                        refMGame.WriteLine("Please choose one of the options", 25);
+                        Console.WriteLine("");
+                        break;
                 }
             }
 
-            //  Rolling attribute pool
+            //  Rolling attributes
             List<int> attributePool = new List<int>();
             List<int> rolls = new List<int>();
             int total = 0;
 
             for(int i = 0; i < 6; i++) {
                 refMGame.WriteText($"Rolling {(i+1)}: ", 75);
-                rolls = new List<int>();
+                rolls.Clear();
 
-                for(int x = 0; x < 4; x++) {
-                    int roll = refRand.Next(0, 6)+1;
-                    rolls.Add(roll);
+                switch(rollMethod) {
+                    //  Roll 4d6, drop lowest
+                    case "4d6d1":
+                        //  Roll 4d6
+                        for(int x = 0; x < 4; x++) {
+                            int roll = refRand.Next(0, 6)+1;
+                            rolls.Add(roll);
 
-                    refMGame.WriteText((roll + ((x < 3) ? ", " : "")), 75);
+                            refMGame.WriteText((roll + ((x < 3) ? ", " : "")), 75);
+                        }
+
+                        //  Drop lowest
+                        rolls.Sort();
+                        rolls.RemoveAt(rolls.Count-1);
+                        total = rolls.Sum();
+                        break;
+
+                    //  Roll 3d6
+                    case "3d6":
+                        //  Roll 3d6
+                        for(int x = 0; x < 3; x++) {
+                            int roll = refRand.Next(0, 6)+1;
+                            rolls.Add(roll);
+
+                            refMGame.WriteText((roll + ((x < 2) ? ", " : "")), 75);
+                        }
+
+                        total = rolls.Sum();
+                        break;
+
+                    // Roll 2d6, add 6
+                    case "2d6+6":
+                        //  Roll 2d6
+                        for(int x = 0; x < 2; x++) {
+                            int roll = refRand.Next(0, 6)+1;
+                            rolls.Add(roll);
+
+                            refMGame.WriteText((roll + ((x < 2) ? ", " : "")), 75);
+                        }
+                        refMGame.WriteText("6", 75);
+
+                        //  Add 6
+                        rolls.Add(6);
+                        total = rolls.Sum();
+                        break;
                 }
-                Console.WriteLine("");
 
-                rolls.Sort();
-                total = (rolls[1] + rolls[2] + rolls[3]);
+                //  Add to attribute pool
                 attributePool.Add(total);
-
-                refMGame.WriteText($"Dropping {rolls[0]}", 75);
                 refMGame.WriteLine($", Total {total}{CCAttr_DisplayMod(total)}", 75);
-
+                
                 Console.WriteLine("");
                 Thread.Sleep(1000);
             }
@@ -198,6 +245,7 @@ namespace Project1.Main {
                             refMGame.WriteText($"Assigning last value of {pPool[0]} to charisma", 25);
                             attributes.Add(pPool[0]);
                             pPool.Clear();
+
                             actionCount = 6;
                             Console.WriteLine("");
                             break;
@@ -243,13 +291,12 @@ namespace Project1.Main {
 
             return attributes;
         }
-    
-        //  SubMethod of CharacterCreation - Character Creation Class
-        private string CC_Class() {
+
+        private void CC_Class() {
+            bool classValid = false;
             string classType = "";
 
-            bool nameValid = false;
-            while(nameValid == false) {
+            while(classValid == false) {
                 refMGame.WriteLine("Available classes: ", 25);
                 refMGame.WriteLine("(1) Fighter", 25);
                 Console.WriteLine("");
@@ -267,7 +314,7 @@ namespace Project1.Main {
                 while(actionCount < 5) {
                     refMGame.WriteLine($"You are a {classType}? (Y/N)", 25);
                     if ((Console.ReadLine() ?? "").ToLower() == "y") {
-                        nameValid = true;
+                        classValid = true;
                         actionCount = 5;
                     }
                     
@@ -275,9 +322,7 @@ namespace Project1.Main {
                 }
             }
 
-            return classType;
+            player.Class = classType;
         }
-
-        */
     }
 }

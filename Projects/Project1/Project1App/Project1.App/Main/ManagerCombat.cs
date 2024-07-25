@@ -60,7 +60,7 @@ namespace Project1.Main {
 
         //  MainMethod - Combat Loop
         public void CombatLoop() {
-            string enemyName = (enemy.Proper == true) ? enemy.Name.ToLower() : enemy.Name;
+            string enemyName = ((enemy.Proper == false) ? enemy.Name.ToLower() : enemy.Name).Split("_")[0];
 
             //  Encounter initiated
             Console.WriteLine($"Player has encountered {((enemy.Article != "") ? (enemy.Article + " ") : "")}{enemyName}! Combat initiated!");
@@ -139,7 +139,6 @@ namespace Project1.Main {
             string action = "";
             int actionCount = 0;
             bool actionValid = false;
-
             int playerToHit = 0;
 
             while(actionValid == false) {

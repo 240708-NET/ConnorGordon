@@ -10,9 +10,9 @@ namespace Project1.Models.Actor {
         //  Attribute Variables
         public int Proficiency { get; set; }
         [NotMapped]
-        public Dictionary<string, int> D_AttrScr { get; private set; }
+        public Dictionary<string, int> D_AttrScr { get; set; }
         [NotMapped]
-        public Dictionary<string, int> D_AttrMod { get; private set; }
+        public Dictionary<string, int> D_AttrMod { get; set; }
         public string Attributes { get; set; }
 
         //  Class Variables
@@ -42,9 +42,9 @@ namespace Project1.Models.Actor {
         //  Name Variables
         public string Name { get; set; }
         [NotMapped]
-        public bool Proper { get; private set; }
+        public bool Proper { get; set; }
         [NotMapped]
-        public string Article { get; private set; }
+        public string Article { get; set; }
 
         //  Default Constructor
         public GameActor() {

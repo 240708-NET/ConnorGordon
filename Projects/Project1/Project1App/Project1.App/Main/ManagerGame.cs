@@ -1,4 +1,4 @@
-using Project1.Data;
+using Project1.Models.Actor;
 
 namespace Project1.Main {
     public class ManagerGame {
@@ -6,7 +6,7 @@ namespace Project1.Main {
         public Random Rand;
 
         //  ~Server Variables
-        public DataSerial DS;
+        //public DataSerial DS;
 
         //  End Variables
         public bool Force_Quit;
@@ -24,7 +24,7 @@ namespace Project1.Main {
             Rand = new Random();
 
             //  Setup ~Server
-            DS = new DataSerial();
+            //DS = new DataSerial();
 
             //  Setup Managers
             M_Actor = new ManagerActor(this);

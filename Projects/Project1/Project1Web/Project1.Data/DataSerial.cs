@@ -1,11 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using Project1.Models.Actor;
 
 namespace Project1.Data {
     public class DataSerial : IData {
         private DataContext context;
 
-        public DataSerial() {
-            context = new DataContext();
+        public DataSerial(string pConnect) {
+            context = new DataContext(new DbContextOptionsBuilder<DataContext>().UseSqlServer(pConnect).Options);
         }
 
         public GameActor? GetEnemy(GameActor pEnemy) {
@@ -21,7 +22,7 @@ namespace Project1.Data {
 
             List<GameActor> enemies = context.Enemies.ToList();
             foreach(GameActor enemy in enemies) {
-                result.Add($"{enemy.Name.Split("_")[0]}", new GameActor(enemy, true));
+                result.Add($"{enemy.Name.Split("_")[0]}", new GameActor(enemy, false));
             }
 
             return result;

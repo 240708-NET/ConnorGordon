@@ -2,7 +2,7 @@
 
 namespace Project1 {
 	class Program {
-		static void Main( string[] args ) {
+		public static void Main( string[] args ) {
 			ManagerGame mg = new ManagerGame();
 			mg.PlayGame();
 		}	
