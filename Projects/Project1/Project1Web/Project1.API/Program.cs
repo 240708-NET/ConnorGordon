@@ -7,7 +7,7 @@ namespace Project1.API {
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<IData>(pData => new DataSerial(builder.Configuration.GetConnectionString("Main")));
+            builder.Services.AddScoped<IData>(pData => new DataSerial(File.ReadAllText("../Project1.Data/ConnectionString")));
 
             var app = builder.Build();
 
