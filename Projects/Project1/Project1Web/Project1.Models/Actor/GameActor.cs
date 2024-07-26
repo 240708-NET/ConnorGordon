@@ -366,23 +366,23 @@ namespace Project1.Models.Actor {
                 case "Melee":
                     bool finesse = false;
                     attrMod = ((finesse == true && D_AttrMod["DEX"] > D_AttrMod["STR"]) ? D_AttrMod["DEX"] : D_AttrMod["STR"]);
-                    int modNum = attackMod + attrMod;
+                    int modNum = attackMod + attrMod + Proficiency;
                     string modStr = $"{((modNum != 0) ? ((modNum > 0) ? "+" : "") + modNum : "")}";
 
                     Console.Write($"{Name} {pAtk.Attack_Action} {pAtk.Attack_Name}, ");
-                    Console.Write($"rolls {dice}{modStr}({(dice + attackMod + attrMod)})");
+                    Console.Write($"rolls {dice}{modStr}({(dice + attackMod + attrMod + Proficiency)})");
 
                     //  Part - Check vs Target AC
                     int enemyAC = (pTarget.Def_ArmoredAC != -1) ? pTarget.Def_ArmoredAC : pTarget.Def_Unarmored;
                     if ((dice + attackMod + attrMod) >= enemyAC) {
                         Console.WriteLine(", and hits!");
                         DealDamage(pRand, pTarget, pAtk, attrMod);
-                        return (dice + attackMod + attrMod);
+                        return (dice + attackMod + attrMod + Proficiency);
                     }
                     else {
                         Console.WriteLine(", and misses!");
                         Console.WriteLine("");
-                        return (dice + attackMod + attrMod);
+                        return (dice + attackMod + attrMod + Proficiency);
                     }
             }
 

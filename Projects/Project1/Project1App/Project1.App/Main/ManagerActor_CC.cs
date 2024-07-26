@@ -334,19 +334,31 @@ namespace Project1.App.Main {
             player.Class = classType;
 
             //  Setup Level
-            player.Level = 2;
-            player.ExpCurr = 300;
-            player.ExpReq = RefMActor.D_LevelReqs["2"];
+            player.Level = 5;
+            player.ExpCurr = RefMActor.D_LevelReqs[((player.Level > 1) ? (player.Level-1) : player.Level).ToString()];
+            player.ExpReq = RefMActor.D_LevelReqs[player.Level.ToString()];
+
+            player.Proficiency = 3;
 
             //  Setup Health
             switch(player.Class) {
                 case "Fighter":
-                    player.HealthDice = "2d10";
-                    refMGame.WriteLine("Assigning 2d10 to health dice", 25);
+                    player.HealthDice = $"{player.Level}d10";
+                    refMGame.WriteLine($"Assigning {player.Level}d10 to health dice", 25);
+
+                    string conMod = $"{((player.D_AttrMod["CON"] > 0) ? "+" : "")}{((player.D_AttrMod["CON"]!=0) ? "" + player.D_AttrMod["CON"] : "")}";
+
+                    player.HealthBase = 10 + player.D_AttrMod["CON"];
+                    refMGame.WriteLine($"- Adding 10{conMod} to health for level 1", 25);
+
+                    for(int i = 1; i < player.Level; i++) {
+                        int amt = (refRand.Next(0, 10)+1);
+                        player.HealthBase += amt + player.D_AttrMod["CON"];
+                        refMGame.WriteLine($"- Adding {amt}{conMod} to health for level {i+1}", 25);
+                    }
+                    refMGame.WriteLine($"Setting max health to {player.HealthBase}", 25);
                     
-                    player.HealthBase = 10 + (refRand.Next(0, 10)+1) + (2*player.D_AttrMod["CON"]);
                     player.HealthCurr = 0 + player.HealthBase;
-                    refMGame.WriteLine($"Setting health to {player.HealthBase} (2d10+2x Con Mod({player.D_AttrMod["CON"]}))", 25);
                     break;
             }
             Console.WriteLine("");
