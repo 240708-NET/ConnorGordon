@@ -1,6 +1,6 @@
 using Project1.Models.Actor;
 
-namespace Project1.Main {
+namespace Project1.App.Main {
     public class ManagerGame {
         //  ~Reference Variables
         public Random Rand;
@@ -10,6 +10,7 @@ namespace Project1.Main {
 
         //  Manager Variables
         public ManagerActor M_Actor { get; private set; }
+        public ManagerCave M_Cave { get; private set; }
         public ManagerCombat M_Combat { get; private set; }
 
         //  Constructor
@@ -22,6 +23,7 @@ namespace Project1.Main {
 
             //  Setup Managers
             M_Actor = new ManagerActor(this);
+            M_Cave = new ManagerCave(this);
             M_Combat = new ManagerCombat(this);
         }
 
@@ -31,8 +33,7 @@ namespace Project1.Main {
         /// </summary>
         public void PlayGame() {
             while(Force_Quit == false) {
-                M_Combat = new ManagerCombat(this);
-                M_Combat.CombatLoop();
+                M_Cave.GameLoop();
             }
         }
 

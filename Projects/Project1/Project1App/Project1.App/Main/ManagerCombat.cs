@@ -1,10 +1,13 @@
 using Project1.Models.Actor;
 
-namespace Project1.Main {
+namespace Project1.App.Main {
     public class ManagerCombat {
         //  ~Reference Variables
         public ManagerGame RefMGame { get; private set; }
         private Random RefRand => RefMGame.Rand;
+
+        private ManagerActor refMActor => RefMGame.M_Actor;
+        private ManagerCave refMCave => RefMGame.M_Cave;
 
         //  Combat Variables
         private bool combatActive;
@@ -36,7 +39,7 @@ namespace Project1.Main {
 
         private string player_Name => $"+ {player.Name}{new string(' ', (27 - player.Name.Length))} +";
         private string player_Health => $"+ HP: {player.HealthStr}{new string(' ', (23 - player.HealthStr.Length))} +";
-        private string player_AC => $"+ AC: {player.Def_Unarmored}{new string(' ', (23 - player.Def_Unarmored.ToString().Length))} +";
+        private string player_AC => $"+ AC: {player.Def_AC}{new string(' ', (23 - player.Def_Unarmored.ToString().Length))} +";
 
         //  Constructor
         /// <summary>
@@ -58,12 +61,25 @@ namespace Project1.Main {
             enemy_ACRange = "???";
         }
 
+        //  MainMethod - Combat Setup
+        public void CombatSetup() {
+            combatActive = true;
+
+            //  Setup Enemy
+            enemy = new GameActor(RefMGame.M_Actor.GetEnemy(), false);
+
+            enemy_ACLow = -999;
+            enemy_ACHigh = 999;
+            enemy_ACRange = "???";
+        }
+
         //  MainMethod - Combat Loop
         public void CombatLoop() {
             string enemyName = ((enemy.Proper == false) ? enemy.Name.ToLower() : enemy.Name).Split("_")[0];
+            string enemyStr = ((enemy.Article != "") ? (enemy.Article + " ") : "") + enemyName;
 
             //  Encounter initiated
-            Console.WriteLine($"Player has encountered {((enemy.Article != "") ? (enemy.Article + " ") : "")}{enemyName}! Combat initiated!");
+            Console.WriteLine($"Player has encountered {enemyStr}! Combat initiated!");
             string action = Console.ReadLine() ?? "";
 
             //  Initial action check
@@ -71,6 +87,7 @@ namespace Project1.Main {
                 //  Force Quit action
                 case "fquit":
                     combatActive = false;
+                    refMCave.GameActive = false;
                     RefMGame.Force_Quit = true;
                     break;
             }
@@ -85,7 +102,9 @@ namespace Project1.Main {
 
                 //  If player is dead, end combat and exit
                 else {
+                    RefMGame.WriteLine($"{player.Name} has died to {enemyStr}", 75);
                     combatActive = false;
+                    refMCave.GameActive = false;
                     RefMGame.Force_Quit = true;
                 }
 
@@ -97,6 +116,16 @@ namespace Project1.Main {
 
                     //  If enemy is dead, end combat and exit
                     else {
+                        RefMGame.WriteLine($"{enemy.Name} has died! Player gains 200 exp.", 25);
+                        player.GainExperience(200);
+                        RefMGame.WriteLine($"Player exp: {player.ExpStr}", 25);
+
+                        if (player.ExpCurr >= player.ExpReq) {
+                            RefMGame.WriteLine($"Player levels up from {player.Level} to {(player.Level+1)}!", 25);
+                            refMActor.ActorLevelUp(player);
+                        }
+                        Console.WriteLine("");
+
                         DisplayCombat_Ending();
                         PlayerAction_Ending();
                     }
@@ -153,6 +182,7 @@ namespace Project1.Main {
                             actionCount = 5;
                             actionValid = true;
                             combatActive = false;
+                            refMCave.GameActive = false;
                             RefMGame.Force_Quit = true;
                             break;
                         
@@ -184,7 +214,7 @@ namespace Project1.Main {
         //  SubMethod of PlayerAction_Combat - Update Enemy AC
         private void PAC_UpdateEnemyAC(int pToHit) {
             if (pToHit != -999) {
-                if (pToHit >= enemy.Def_Unarmored) {
+                if (pToHit >= enemy.Def_AC) {
                     //  Player hasn't hit before and has missed, increment enemy_ACLow to switch to range
                     if (enemy_ACHigh == 999 && enemy_ACLow != -999) {
                         enemy_ACLow++;
@@ -237,6 +267,7 @@ namespace Project1.Main {
                             actionValid = true;
                             combatActive = false;
 
+                            refMCave.GameActive = false;
                             RefMGame.Force_Quit = true;
                             break;
                         
@@ -253,7 +284,7 @@ namespace Project1.Main {
                             actionValid = true;
                             combatActive = false;
 
-                            //player.RestoreHealth();
+                            player.RestoreHealth();
                             break;
 
                         //  Invalid input

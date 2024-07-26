@@ -29,6 +29,13 @@ namespace Project1.Models.Actor {
         //  Defense Variables
         [NotMapped]
         public int Def_Unarmored { get; set; }
+        [NotMapped]
+        public string Def_ArmoredName { get; set; }
+        [NotMapped]
+        public int Def_ArmoredAC { get; set; }
+        public string DefenseArmor { get; set; }
+        [NotMapped]
+        public int Def_AC => (Def_ArmoredAC != -1) ? Def_ArmoredAC : Def_Unarmored;
 
         //  Health Variables
         public string HealthDice { get; set; }
@@ -38,6 +45,16 @@ namespace Project1.Models.Actor {
         public int HealthCurr { get; set; }
         [NotMapped]
         public string HealthStr => $"{HealthCurr}/{HealthBase}";
+
+        //  Level Variables
+        public int Level { get; set; }
+        [NotMapped]
+        public int ExpCurr { get; set; }
+        [NotMapped]
+        public int ExpReq { get; set; }
+        [NotMapped]
+        public string ExpStr => $"{ExpCurr}/{ExpReq}";
+        public string Experience { get; set; }
 
         //  Name Variables
         public string Name { get; set; }
@@ -63,8 +80,19 @@ namespace Project1.Models.Actor {
             Atk_List = new List<GameAttack>();
             AttackList = "";
 
+            //  Setup Defense
+            Def_Unarmored = 10;
+            Def_ArmoredName = "";
+            Def_ArmoredAC = -1;
+            DefenseArmor = "";
+
             //  Setup Health
             HealthDice = "";
+
+            //  Setup Level
+            Level = 1;
+            ExpCurr = 0;
+            Experience = "";
 
             //  Setup Name
             Name = "";
@@ -93,8 +121,19 @@ namespace Project1.Models.Actor {
             Atk_List = new List<GameAttack>();
             AttackList = "";
 
+            //  Setup Defense
+            Def_Unarmored = 10;
+            Def_ArmoredName = "";
+            Def_ArmoredAC = -1;
+            DefenseArmor = "";
+
             //  Setup Health
             HealthDice = "";
+
+            //  Setup Level
+            Level = 1;
+            ExpCurr = 0;
+            Experience = "0/300";
 
             //  Setup Name
             Name = "";
@@ -148,11 +187,20 @@ namespace Project1.Models.Actor {
 
             //  Setup Defense
             Def_Unarmored = 0 + pActor.Def_Unarmored;
+            Def_ArmoredName = "" + pActor.Def_ArmoredName;
+            Def_ArmoredAC = 0 + pActor.Def_ArmoredAC;
+            DefenseArmor = "" + pActor.DefenseArmor;
 
             //  Setup Health
             HealthDice = "" + pActor.HealthDice;
             HealthBase = 0 + pActor.HealthBase;
             HealthCurr = 0 + pActor.HealthCurr;
+
+            //  Setup Level
+            Level = 0 + pActor.Level;
+            ExpCurr = 0 + pActor.ExpCurr;
+            ExpReq = 0 + pActor.ExpReq;
+            Experience = "" + pActor.Experience;
 
             //  Setup Name
             Name = "" + pActor.Name;
@@ -219,7 +267,44 @@ namespace Project1.Models.Actor {
             }
 
             //  Setup Defense
-            Def_Unarmored = 10 + D_AttrMod["CON"];
+            Def_Unarmored = 10 + D_AttrMod["DEX"];
+
+            DefenseArmor = "" + pActor.DefenseArmor;
+
+            if (DefenseArmor != "") {
+                string[] armorArr = DefenseArmor.Split("_");
+
+                Def_ArmoredName = "" + armorArr[0];
+
+                Def_ArmoredAC = 0;// + int.Parse(armorACArr[0]);
+
+                //  Armor has attr mod
+                if (armorArr[1].Contains("+")) {
+                    string[] armorACArr = armorArr[1].Split("+");
+                    Def_ArmoredAC += int.Parse(armorACArr[0]);
+
+                    //  Armor has max mod
+                    if (armorACArr[1].Contains("/")) {
+                        string[] armorACArr2 = armorACArr[1].Split("/");
+                        
+                        switch(armorACArr2[1]) {
+                            case "M2":
+                                Def_ArmoredAC += Math.Min(D_AttrMod[armorACArr[1]], 2);
+                                break;
+                        }
+                    }
+
+                    else {
+                        Def_ArmoredAC += D_AttrMod[armorACArr[1]];
+                    }
+                }
+                else {
+                    Def_ArmoredAC = int.Parse(armorArr[1]);
+                }
+            }
+            else {
+                Def_ArmoredAC = -1;
+            }
 
             //  Setup Health
             HealthDice = "" + pActor.HealthDice;
@@ -229,6 +314,13 @@ namespace Project1.Models.Actor {
 
             HealthBase = 0 + (diceNum * diceType) + (diceNum * D_AttrMod["CON"]);
             HealthCurr = 0 + HealthBase;
+
+            //  Setup Level
+            Level = 0 + pActor.Level;
+            Experience = "" + pActor.Experience;
+            string[] expArr = Experience.Split("/");
+            ExpCurr = int.Parse(expArr[0]);
+            ExpReq = int.Parse(expArr[1]);
 
             //  Setup Name
             string[] nameArr = pActor.Name.Split("_");
@@ -278,10 +370,11 @@ namespace Project1.Models.Actor {
                     string modStr = $"{((modNum != 0) ? ((modNum > 0) ? "+" : "") + modNum : "")}";
 
                     Console.Write($"{Name} {pAtk.Attack_Action} {pAtk.Attack_Name}, ");
-                    Console.Write($"rolls {dice}{modStr} ({(dice + attackMod + attrMod)})");
+                    Console.Write($"rolls {dice}{modStr}({(dice + attackMod + attrMod)})");
 
                     //  Part - Check vs Target AC
-                    if ((dice + attackMod + attrMod) >= 0) {//pTarget.Def_Unarmored) {
+                    int enemyAC = (pTarget.Def_ArmoredAC != -1) ? pTarget.Def_ArmoredAC : pTarget.Def_Unarmored;
+                    if ((dice + attackMod + attrMod) >= enemyAC) {
                         Console.WriteLine(", and hits!");
                         DealDamage(pRand, pTarget, pAtk, attrMod);
                         return (dice + attackMod + attrMod);
@@ -354,6 +447,27 @@ namespace Project1.Models.Actor {
         /// </summary>
         public void RestoreHealth() {
             HealthCurr = 0 + HealthBase;
+
+            Console.WriteLine($"Player restores hp to full ({HealthCurr})");
+            Console.WriteLine("");
+        }
+
+        //  MainMethod - Restore Health
+        /// <summary>
+        /// Character-level method for restoring current health to base health
+        /// </summary>
+        /// <param name="pHp">Amount to restore</param>
+        public void RestoreHealth(int pHp) {
+            HealthCurr += 0 + pHp;
+            HealthCurr = Math.Min(HealthBase, HealthCurr);
+
+            Console.WriteLine($"Player restores 2 hp to {HealthCurr}");
+            Console.WriteLine("");
+        }
+
+        //  MainMethod - Gain Experience
+        public void GainExperience(int pAmt) {
+            ExpCurr += pAmt;
         }
     }
 }

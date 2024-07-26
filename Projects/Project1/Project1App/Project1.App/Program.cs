@@ -1,6 +1,6 @@
-﻿using Project1.Main;
+﻿using Project1.App.Main;
 
-namespace Project1 {
+namespace Project1.App {
 	class Program {
 		public static void Main( string[] args ) {
 			ManagerGame mg = new ManagerGame();

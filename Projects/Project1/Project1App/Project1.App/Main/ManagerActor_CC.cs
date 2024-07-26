@@ -1,7 +1,7 @@
 using System.IO;
 using Project1.Models.Actor;
 
-namespace Project1.Main {
+namespace Project1.App.Main {
     public class ManagerActor_CC {
         //  ~Reference Variables
         public ManagerActor RefMActor { get; private set; }
@@ -53,10 +53,6 @@ namespace Project1.Main {
 
         //  SubMethod of CharacterCreation - Character Creation Attribute
         private void CC_Attribute() {
-            refMGame.WriteText("Rolling Attributes", 25);
-            refMGame.WriteLine("...", 400);
-            Thread.Sleep(500);
-
             //  Roll attributes
             List<int> attributePool = CCAttr_Roll();
             List<int> attributeNum = CCAttr_Assign(attributePool);
@@ -127,6 +123,10 @@ namespace Project1.Main {
                         break;
                 }
             }
+
+            refMGame.WriteText("Rolling Attributes", 75);
+            refMGame.WriteLine("...", 400);
+            Thread.Sleep(500);
 
             //  Rolling attributes
             List<int> attributePool = new List<int>();
@@ -305,7 +305,7 @@ namespace Project1.Main {
                 refMGame.WriteLine("(1) Fighter", 25);
                 Console.WriteLine("");
 
-                refMGame.WriteText("Select enter your class: ", 25);
+                refMGame.WriteText("Please choose your class: ", 25);
                 classType = Console.ReadLine() ?? "";
 
                 switch(classType) {
@@ -322,6 +322,7 @@ namespace Project1.Main {
                 while(actionCount < 5) {
                     refMGame.WriteLine($"You are a {classType}? (Y/N)", 25);
                     if ((Console.ReadLine() ?? "").ToLower() == "y") {
+                        Console.WriteLine("");
                         classValid = true;
                         actionCount = 5;
                     }
@@ -332,15 +333,20 @@ namespace Project1.Main {
 
             player.Class = classType;
 
+            //  Setup Level
+            player.Level = 2;
+            player.ExpCurr = 300;
+            player.ExpReq = RefMActor.D_LevelReqs["2"];
+
             //  Setup Health
             switch(player.Class) {
                 case "Fighter":
-                    player.HealthDice = "1d10";
-                    refMGame.WriteLine("Assigning 1d10 to health dice", 25);
+                    player.HealthDice = "2d10";
+                    refMGame.WriteLine("Assigning 2d10 to health dice", 25);
                     
-                    player.HealthBase = 10 + player.D_AttrMod["CON"];
+                    player.HealthBase = 10 + (refRand.Next(0, 10)+1) + (2*player.D_AttrMod["CON"]);
                     player.HealthCurr = 0 + player.HealthBase;
-                    refMGame.WriteLine($"Setting health to {player.HealthBase}", 25);
+                    refMGame.WriteLine($"Setting health to {player.HealthBase} (2d10+2x Con Mod({player.D_AttrMod["CON"]}))", 25);
                     break;
             }
             Console.WriteLine("");
@@ -355,6 +361,12 @@ namespace Project1.Main {
             player.Atk_List = new List<GameAttack>();
             player.Atk_List.Add(new GameAttack("longsword", "swings with", "Melee", 0, "1d8_0_slashing"));
             refMGame.WriteLine("Giving player a melee attack called 'longsword' with 1d8 slashing damage", 25);
+            Console.WriteLine("");
+
+            //  Setup Defense
+            player.DefenseArmor = "Breastplate_14+DEX/M2";
+            player.Def_ArmoredAC = 14 + ((player.D_AttrMod["DEX"] > 2) ? 2 : player.D_AttrMod["DEX"]);
+            refMGame.WriteLine($"Giving player a breastplate with 14{((player.D_AttrMod["DEX"] > 0) ? "+" : "")}{player.D_AttrMod["DEX"]}({player.Def_ArmoredAC}) AC", 25);
             Console.WriteLine("");
         }
     }
