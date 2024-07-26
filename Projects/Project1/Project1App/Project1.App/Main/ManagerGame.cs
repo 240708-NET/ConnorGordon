@@ -5,9 +5,6 @@ namespace Project1.Main {
         //  ~Reference Variables
         public Random Rand;
 
-        //  ~Server Variables
-        //public DataSerial DS;
-
         //  End Variables
         public bool Force_Quit;
 
@@ -22,9 +19,6 @@ namespace Project1.Main {
         public ManagerGame() {
             //  Setup ~Reference
             Rand = new Random();
-
-            //  Setup ~Server
-            //DS = new DataSerial();
 
             //  Setup Managers
             M_Actor = new ManagerActor(this);
@@ -44,13 +38,7 @@ namespace Project1.Main {
 
         //  MainMethod - Save Game
         private void SaveGame() {
-            /*
-            IData dataHandle = new DataSerial();
-            string path = "../Project1.Repo/Enemies.txt";
-            if (M_Actor.D_Enemies.Count != M_Actor.Enemy_Count) {
-                dataHandle.SaveAllEnemies(path, M_Actor.D_Enemies.Values.ToList());
-            }
-            */
+            
         }
 
         //  MainMethod - Write Text

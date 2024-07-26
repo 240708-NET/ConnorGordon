@@ -18,5 +18,10 @@ namespace Project1.API.Controllers {
         public Dictionary<string, GameActor> GetAllEnemies() {
             return actorData.GetAllEnemies();
         }
+
+        [HttpPost("/createAllEnemies")]
+        public Dictionary<string, GameActor> CreateAllEnemies([FromBody] Dictionary<string, GameActor> pEnemies) {
+            return actorData.CreateAllEnemies(pEnemies);
+        }
     }
 }

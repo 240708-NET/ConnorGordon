@@ -18,7 +18,6 @@ namespace Project1.Main {
 
             // Setup Player
             player = new GameActor();
-            //player.SetupUnarmed("fists", "punches with their", "Melee", 0, "0_1_bludgeoning");
         }
 
         //  MainMethod - Character Creation
@@ -26,6 +25,7 @@ namespace Project1.Main {
             CC_Name();
             CC_Attribute();
             CC_Class();
+            CC_Combat();
 
             return player;
         }
@@ -78,6 +78,9 @@ namespace Project1.Main {
                 ["WIS"] = (attributeNum[4] / 2) - 5,
                 ["CHA"] = (attributeNum[5] / 2) - 5,
             };
+
+            //  Setup Defense
+            player.Def_Unarmored = 10 + player.D_AttrMod["DEX"];
         }
 
         private List<int> CCAttr_Roll() {
@@ -147,7 +150,7 @@ namespace Project1.Main {
 
                         //  Drop lowest
                         rolls.Sort();
-                        rolls.RemoveAt(rolls.Count-1);
+                        rolls.RemoveAt(0);
                         total = rolls.Sum();
                         break;
 
@@ -296,6 +299,7 @@ namespace Project1.Main {
             bool classValid = false;
             string classType = "";
 
+            //  Setup Class
             while(classValid == false) {
                 refMGame.WriteLine("Available classes: ", 25);
                 refMGame.WriteLine("(1) Fighter", 25);
@@ -306,6 +310,10 @@ namespace Project1.Main {
 
                 switch(classType) {
                     case "1":
+                        classType = "Fighter";
+                        break;
+                    
+                    default:
                         classType = "Fighter";
                         break;
                 }
@@ -323,6 +331,31 @@ namespace Project1.Main {
             }
 
             player.Class = classType;
+
+            //  Setup Health
+            switch(player.Class) {
+                case "Fighter":
+                    player.HealthDice = "1d10";
+                    refMGame.WriteLine("Assigning 1d10 to health dice", 25);
+                    
+                    player.HealthBase = 10 + player.D_AttrMod["CON"];
+                    player.HealthCurr = 0 + player.HealthBase;
+                    refMGame.WriteLine($"Setting health to {player.HealthBase}", 25);
+                    break;
+            }
+            Console.WriteLine("");
+        }
+    
+        private void CC_Combat() {
+            //  Setup Unarmed
+            player.Atk_Unarmed = new GameAttack("fists", "punches with", "Melee", 0, "0_1_bludgeoning");
+            refMGame.WriteLine("Giving player an unarmed melee attack called 'fists' with 1 bludgeoning damage", 25);
+
+            //  Setup Combat
+            player.Atk_List = new List<GameAttack>();
+            player.Atk_List.Add(new GameAttack("longsword", "swings with", "Melee", 0, "1d8_0_slashing"));
+            refMGame.WriteLine("Giving player a melee attack called 'longsword' with 1d8 slashing damage", 25);
+            Console.WriteLine("");
         }
     }
 }

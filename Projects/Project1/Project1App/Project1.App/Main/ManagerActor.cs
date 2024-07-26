@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Newtonsoft.Json;
 using Project1.Models.Actor;
@@ -31,35 +32,34 @@ namespace Project1.Main {
             AddEnemies();
 
             //  Setup Player
-            //ManagerActor_CC creation = new ManagerActor_CC(this);
-            //creation.CharacterCreation();
-
-            Player = new GameActor { 
-                Name = "Bob_True", 
-                Proficiency = 2,
-                Attributes = "10,10,10,10,10,10",
-                Class = "Fighter",
-                HealthDice = "1d10",
-                AttackUnarmed = "fists_strikes with their_Melee_0/0_1_bludgeoning",
-                AttackList = "longsword_swings with their_Melee_0/1d8_0_slashing"
-            };
-            Player = new GameActor(Player, true);
+            ManagerActor_CC creation = new ManagerActor_CC(this);
+            Player = creation.CharacterCreation();
         }
 
         //  SubMethod of Constructor - Add Enemies
         /// <summary>
         /// Adds enemies to the d_Enemies dictionary and the key to enemyKeys
         /// </summary>
-        private void AddEnemies() {
+        private async void AddEnemies() {
             HttpClient client = new HttpClient();
             string str = client.GetStringAsync("http://localhost:5057/getAllEnemies").Result;
-            Dictionary<string, GameActor> tempDict = JsonConvert.DeserializeObject<Dictionary<string, GameActor>>(str);
-            
-            D_Enemies = new Dictionary<string, GameActor>();
-            enemyKeys = new List<string>();
-            foreach(var enemy in tempDict) {
-                D_Enemies.Add(enemy.Key, new GameActor(enemy.Value, true));
-                enemyKeys.Add(enemy.Key);
+            Dictionary<string, GameActor> tempDict = JsonConvert.DeserializeObject<Dictionary<string, GameActor>>(str) ?? new Dictionary<string, GameActor>();
+
+            if (tempDict.Count == 0) {
+                CreateEnemies();
+
+                var enemies = JsonContent.Create<Dictionary<string, GameActor>>(D_Enemies);
+                var postResponse = await client.PostAsync("http://localhost:5057/createAllEnemies", enemies);
+                //Console.WriteLine(JsonConvert.DeserializeObject<Dictionary<string, GameActor>>(await postResponse.Content.ReadAsStringAsync()));
+            }
+
+            else {
+                D_Enemies = new Dictionary<string, GameActor>();
+                enemyKeys = new List<string>();
+                foreach(var enemy in tempDict) {
+                    D_Enemies.Add(enemy.Key, new GameActor(enemy.Value, true));
+                    enemyKeys.Add(enemy.Key);
+                }
             }
         }
 
@@ -94,7 +94,7 @@ namespace Project1.Main {
                 Attributes = "14,16,12,2,11,4",
                 Class = "Enemy",
                 HealthDice = "4d10",
-                AttackUnarmed = "fangs_bites wit theirh_Melee_0/0_1_bludgeoning",
+                AttackUnarmed = "fangs_bites with their_Melee_0/0_1_bludgeoning",
                 AttackList = ""
             });
         }
@@ -102,7 +102,7 @@ namespace Project1.Main {
         //  MainMethod - Character Creation
         public void CharacterCreation() {
             ManagerActor_CC creation = new ManagerActor_CC(this);
-            //creation.CharacterCreation();
+            creation.CharacterCreation();
         }
 
         //  MainMethod - Get Enemy

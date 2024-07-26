@@ -20,22 +20,22 @@ namespace Project1.Models.Actor {
 
         //  Combat Variables
         [NotMapped]
-        public GameAttack Atk_Unarmed { get; private set; }
+        public GameAttack Atk_Unarmed { get; set; }
         public string AttackUnarmed { get; set; }
         [NotMapped]
-        public List<GameAttack> Atk_List { get; private set; }
+        public List<GameAttack> Atk_List { get; set; }
         public string AttackList { get; set; }
 
         //  Defense Variables
         [NotMapped]
-        public int Def_Unarmored { get; private set; }
+        public int Def_Unarmored { get; set; }
 
         //  Health Variables
         public string HealthDice { get; set; }
         [NotMapped]
-        public int HealthBase { get; private set; }
+        public int HealthBase { get; set; }
         [NotMapped]
-        public int HealthCurr { get; private set; }
+        public int HealthCurr { get; set; }
         [NotMapped]
         public string HealthStr => $"{HealthCurr}/{HealthBase}";
 
