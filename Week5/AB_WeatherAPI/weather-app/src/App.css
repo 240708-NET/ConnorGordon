@@ -1,0 +1,41 @@
+body {
+  background-color: slategray;
+}
+
+h1 {
+  background-color: rgb(19,36,32);
+  border-radius: 10px 10px 0px 0px;
+  border-bottom: 0px;
+
+  color:white;
+  text-align: center;
+}
+
+#base {
+  background-color: rgb(61,78,104);
+
+  width: 35%;
+  height:35%;
+
+  position:absolute;
+  top:0;
+  bottom:25%;
+  left:0;
+  right:0;
+
+  margin:auto;
+
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+#data {
+  background-color: white;
+  border-radius: 0px 0px 10px 10px;
+
+  height:72%;
+}
+
+#cityField {
+  border-radius: 10px 10px 10px 10px;
+}
