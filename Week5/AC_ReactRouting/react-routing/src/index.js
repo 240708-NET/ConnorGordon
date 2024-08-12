@@ -7,7 +7,7 @@ import About from './pages/About';
 import Contacts from './pages/Contacts';
 
 import reportWebVitals from './reportWebVitals';
-import { createBrowserRouter, RouterProvider, Link, useRouteError } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Link, useRouteError } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {errorElement: <ErrorBoundary />, children: [
